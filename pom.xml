@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>unionpay.bussiness.poc</groupId>
+    <artifactId>quasirealtimeclearing</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>compute</module>
+        <module>summary</module>
+        <module>pretreatment</module>
+        <module>common</module>
+        <module>rule</module>
+    </modules>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <skipTests>true</skipTests>
+        <jdk.version>1.8</jdk.version>
+        <custom.version>1.0.1</custom.version>
+        <slf4j-log4j.version>1.7.6</slf4j-log4j.version>
+        <logback.version>1.1.1</logback.version>
+        <junit.version>4.11</junit.version>
+        <tomcat.version>7.0.42</tomcat.version>
+        <hbase.version>1.2.0-cdh5.7.0</hbase.version>
+        <scala.version>2.10.6</scala.version>
+        <hadoop.version>2.6.0-cdh5.7.0</hadoop.version>
+        <jackson.version>2.2.3</jackson.version>
+        <redis.version>2.7.0</redis.version>
+        <quartz.version>2.1.7</quartz.version>
+        <zookeeper.version>3.4.5-cdh5.7.0</zookeeper.version>
+        <httpclient.version>4.3</httpclient.version>
+        <spark.version>1.6.2</spark.version>
+        <drools.version>6.4.0.Final</drools.version>
+        <spring.version>4.0.0.RELEASE</spring.version>
+        <mybatis.version>3.2.6</mybatis.version>
+        <slf4j.version>1.7.7</slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
+        <kafka.version>0.11.0.0</kafka.version>
+        <ignite.version>2.0.0</ignite.version>
+    </properties>
+
+    <!--
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>0.11.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams</artifactId>
+            <version>0.11.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.12</artifactId>
+            <version>0.11.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-core</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+    </dependencies>
+    -->
+
+
+</project>
