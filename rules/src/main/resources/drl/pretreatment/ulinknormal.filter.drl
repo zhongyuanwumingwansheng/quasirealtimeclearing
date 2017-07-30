@@ -1,0 +1,14 @@
+package drl.compute;
+
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkNormal;
+
+rule "Filter UlinkNormal"
+when
+    $un:UlinkNormal ( getProcCode() != "01" &&  getProcCode() != "02" ||
+    getRespCode() != "00" && getRespCode() != "10" && getRespCode() != "11" && getRespCode() != "16"
+    && getRespCode() != "A2" && getRespCode() != "A4" && getRespCode() != "A5" && getRespCode() != "A6"
+    && getRespCode() != "Y1" && getRespCode() != "Y3"||
+    getTranStat() != "1" && getTranStat() == "2" && getTranStat() != "3")
+then
+    delete($un);
+end

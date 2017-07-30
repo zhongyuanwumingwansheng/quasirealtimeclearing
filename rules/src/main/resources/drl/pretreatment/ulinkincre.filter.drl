@@ -1,0 +1,12 @@
+package drl.compute;
+
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkIncre;
+
+rule "Filter UlinkIncre"
+when
+    $ui: UlinkIncre( getTransCdPay()  == "02S221X1" || getTransCdPay() == "02V523X1" ||
+    getTransCdPay() == "07S30609"&&getPaySt() == "0"&&getTransStRsvl() == "0" &&
+    getRoutInstIdCd() == "3748020000"&& getTransSt() == "0" && getProdStyle() == "51A2" && getdRsvd6() == 1001);
+then
+    delete($ui);
+end

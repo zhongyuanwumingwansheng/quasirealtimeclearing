@@ -13,7 +13,8 @@
         <module>summary</module>
         <module>pretreatment</module>
         <module>common</module>
-        <module>rule</module>
+        <module>rules</module>
+        <module>model</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,7 +42,16 @@
         <log4j.version>1.2.17</log4j.version>
         <kafka.version>0.11.0.0</kafka.version>
         <ignite.version>2.0.0</ignite.version>
+        <junit.version>4.10</junit.version>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <dependencies>
         <dependency>

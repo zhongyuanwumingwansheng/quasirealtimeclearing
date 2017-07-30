@@ -24,17 +24,21 @@
         <processorPath useClasspath="true" />
         <module name="common" />
         <module name="compute" />
+        <module name="model" />
         <module name="pretreatment" />
         <module name="rule" />
+        <module name="rules" />
         <module name="summary" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="common" target="1.5" />
       <module name="compute" target="1.5" />
+      <module name="model" target="1.5" />
       <module name="pretreatment" target="1.5" />
       <module name="quasirealtimeclearing" target="1.5" />
       <module name="rule" target="1.5" />
+      <module name="rules" target="1.5" />
       <module name="summary" target="1.5" />
     </bytecodeTargetLevel>
   </component>
