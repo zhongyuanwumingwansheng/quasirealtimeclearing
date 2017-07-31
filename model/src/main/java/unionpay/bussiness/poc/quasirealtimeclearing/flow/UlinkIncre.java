@@ -17,7 +17,6 @@ public class UlinkIncre {
     private String prodStyle = null;
     private int dRsvd6 = 0;
 
-
     public UlinkIncre() {
         this.transCdPay = ValueDefault.STRING_DEFAULT;
         this.paySt = ValueDefault.STRING_DEFAULT;

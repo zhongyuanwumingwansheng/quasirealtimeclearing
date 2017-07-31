@@ -64,6 +64,11 @@ public class PretreatmentTest {
         assert (reserved == 2l);
     }
 
+    @Test
+    public void tempTest() {
+        UlinkIncre ui = new UlinkIncre();
+    }
+
     @After
     public void deposeKie() {
         ks = null;

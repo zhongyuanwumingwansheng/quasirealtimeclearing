@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -27,18 +28,15 @@
     <orderEntry type="library" name="Maven: net.sf.jopt-simple:jopt-simple:5.0.3" level="project" />
     <orderEntry type="library" name="Maven: com.yammer.metrics:metrics-core:2.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.25" level="project" />
-    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: com.101tec:zkclient:0.10" level="project" />
     <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper:3.4.10" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.spark:spark-streaming_2.10:1.6.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.spark:spark-sql_2.10:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-core_2.10:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro-mapred:hadoop2:1.7.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro-ipc:1.7.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro:1.7.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro-ipc:tests:1.7.7" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.13" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.13" level="project" />
     <orderEntry type="library" name="Maven: com.twitter:chill_2.10:0.5.0" level="project" />
     <orderEntry type="library" name="Maven: com.esotericsoftware.kryo:kryo:2.21" level="project" />
     <orderEntry type="library" name="Maven: com.esotericsoftware.reflectasm:reflectasm:shaded:1.07" level="project" />
@@ -102,7 +100,6 @@
     <orderEntry type="library" name="Maven: org.fusesource.leveldbjni:leveldbjni-all:1.8" level="project" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-unsafe_2.10:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: net.java.dev.jets3t:jets3t:0.7.1" level="project" />
-    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.3" level="project" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-recipes:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-framework:2.4.0" level="project" />
@@ -119,7 +116,6 @@
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-actor_2.10:2.3.11" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe:config:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty:3.8.0.Final" level="project" />
-    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.5.0" level="project" />
     <orderEntry type="library" name="Maven: org.uncommons.maths:uncommons-maths:1.2.2a" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-slf4j_2.10:2.3.11" level="project" />
     <orderEntry type="library" name="Maven: org.json4s:json4s-jackson_2.10:3.2.10" level="project" />
@@ -144,7 +140,20 @@
     <orderEntry type="library" name="Maven: org.tachyonproject:tachyon-underfs-local:0.8.2" level="project" />
     <orderEntry type="library" name="Maven: net.razorvine:pyrolite:4.9" level="project" />
     <orderEntry type="library" name="Maven: net.sf.py4j:py4j:0.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.spark:spark-catalyst_2.10:1.6.2" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.janino:janino:2.7.8" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.janino:commons-compiler:2.7.8" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-column:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-common:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-encoding:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-generator:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-hadoop:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-format:2.3.0-incubating" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.parquet:parquet-jackson:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.11" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.11" level="project" />
     <orderEntry type="library" name="Maven: org.spark-project.spark:unused:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.spark:spark-streaming_2.10:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-streaming-kafka_2.10:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.kafka:kafka_2.10:0.8.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.json4s:json4s-native_2.10:3.2.10" level="project" />
@@ -165,7 +174,20 @@
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.10.0" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.10.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.10:2.2.1" level="project" />
-    <orderEntry type="library" name="Maven: junit:junit:4.10" level="project" />
-    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.10" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.kie:kie-api:6.4.0.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.drools:drools-compiler:6.4.0.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.kie:kie-internal:6.4.0.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.5" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jdt.core.compiler:ecj:4.4.2" level="project" />
+    <orderEntry type="library" name="Maven: org.mvel:mvel2:2.2.8.Final" level="project" />
+    <orderEntry type="library" name="Maven: com.thoughtworks.xstream:xstream:1.4.7" level="project" />
+    <orderEntry type="library" name="Maven: xmlpull:xmlpull:1.1.3.1" level="project" />
+    <orderEntry type="library" name="Maven: xpp3:xpp3_min:1.1.4c" level="project" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.drools:drools-core:6.4.0.Final" level="project" />
+    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.4" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
   </component>
 </module>
