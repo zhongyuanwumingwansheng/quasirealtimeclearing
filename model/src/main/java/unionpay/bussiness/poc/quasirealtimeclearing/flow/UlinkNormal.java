@@ -6,25 +6,27 @@ package unionpay.bussiness.poc.quasirealtimeclearing.flow;
 
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 
-public class UlinkNormal {
+public class UlinkNormal extends Ulink{
 
 
     private String procCode = null;
     private String respCode = null;
     private String tranStat = null;
-
+    private String mId = null;
 
 
     public UlinkNormal() {
         this.procCode = ValueDefault.STRING_DEFAULT;
         this.respCode = ValueDefault.STRING_DEFAULT;
         this.tranStat = ValueDefault.STRING_DEFAULT;
+        this.mId = ValueDefault.STRING_DEFAULT;
     }
 
-    public UlinkNormal(String procCode, String respCode, String tranStat) {
+    public UlinkNormal(String procCode, String respCode, String tranStat, String mId) {
         this.procCode = procCode;
         this.respCode = respCode;
         this.tranStat = tranStat;
+        this.mId =mId;
     }
 
     public void setProcCode(String procCode) {
@@ -37,6 +39,14 @@ public class UlinkNormal {
 
     public void setTranStat(String tranStat) {
         this.tranStat = tranStat;
+    }
+
+    public void setmId(String mId) {
+        this.mId = mId;
+    }
+
+    public String getmId() {
+        return mId;
     }
 
     public String getProcCode() {

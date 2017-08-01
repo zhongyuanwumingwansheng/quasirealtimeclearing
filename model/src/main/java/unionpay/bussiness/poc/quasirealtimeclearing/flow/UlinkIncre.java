@@ -3,19 +3,20 @@ package unionpay.bussiness.poc.quasirealtimeclearing.flow;
 /**
  * Created by root on 7/27/17.
  */
+import org.apache.spark.sql.DataFrame;
 
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
+import com.ums.QueryRelatedProperty;
 
-public class UlinkIncre {
+public class UlinkIncre extends Ulink{
     private String transCdPay = null;
     private String paySt = null;
     private String transStRsvl = null;
-
     private String routInstIdCd = null;
-
     private String transSt = null;
     private String prodStyle = null;
     private int dRsvd6 = 0;
+    private String mchntIdPay = null;
 
     public UlinkIncre() {
         this.transCdPay = ValueDefault.STRING_DEFAULT;
@@ -27,9 +28,11 @@ public class UlinkIncre {
         this.transSt = ValueDefault.STRING_DEFAULT;
         this.prodStyle = ValueDefault.STRING_DEFAULT;
         this.dRsvd6 = ValueDefault.INT_DEFAULT;
+        this.mchntIdPay = ValueDefault.STRING_DEFAULT;
     }
 
-    public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt, String prodStyle, int dRsvd6) {
+    public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt,
+                      String prodStyle, int dRsvd6, String mchntIdPay) {
         this.transCdPay = transCdPay;
         this.paySt = paySt;
         this.transStRsvl = transStRsvl;
@@ -37,6 +40,7 @@ public class UlinkIncre {
         this.transSt = transSt;
         this.prodStyle = prodStyle;
         this.dRsvd6 = dRsvd6;
+        this.mchntIdPay = mchntIdPay;
     }
 
     public void setTransCdPay(String transCdPay) {
@@ -67,6 +71,14 @@ public class UlinkIncre {
         this.dRsvd6 = dRsvd6;
     }
 
+    public void setMchntIdPay(String mchntIdPay) {
+        this.mchntIdPay = mchntIdPay;
+    }
+
+    public String getMchntIdPay() {
+        return mchntIdPay;
+    }
+
     public String getTransCdPay() {
         return transCdPay;
     }
@@ -93,6 +105,10 @@ public class UlinkIncre {
 
     public int getdRsvd6() {
         return dRsvd6;
+    }
+
+    public int getNum(int number){
+        return number;
     }
 
 

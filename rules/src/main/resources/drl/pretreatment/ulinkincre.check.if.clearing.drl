@@ -1,0 +1,29 @@
+/*
+package drl.compute;
+
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkIncre;
+import unionpay.bussiness.poc.quasirealtimeclearing.table.SysTxnCdInfo;
+import com.ums.QueryRelatedProperty;
+import java.util.ArrayList;
+import java.util.List;
+
+global QueryRelatedProperty qRelPro;
+global List<String> list;
+global String tableName;
+global String targetCol;
+global String sourceColName;
+global String sourceColValue;
+rule "Check if need clearing by transfer Ulinkincre Code"
+when
+
+*/
+/*    $ui: UlinkIncre($dcFlag:queryProperty(qRelPro, "", "txnCode", getTransCdPay(), "dcFlg"),
+    $clearingFlag:(queryProperty(qRelPro, "", "txnCode", getTransCdPay(), "settFlg") memberOf list ));*//*
+
+
+
+
+
+then
+
+end*/

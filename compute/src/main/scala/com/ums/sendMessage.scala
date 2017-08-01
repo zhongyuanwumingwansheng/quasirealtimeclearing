@@ -15,3 +15,9 @@ class SendToKafka(producer:Producer[String, String], topic:String) extends SendM
     producer.send(keyMessage)
   }
 }
+
+//TODO, should move sendMessage to object or not.
+object SendToKafka{
+  def apply(producer: Producer[String, String], topic: String): SendToKafka = new SendToKafka(producer,topic)
+}
+

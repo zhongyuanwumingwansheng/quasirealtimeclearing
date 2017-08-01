@@ -1,0 +1,17 @@
+/*
+package drl.compute;
+
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkIncre;
+import com.ums.QueryRelatedProperty
+
+global QueryRelatedProperty qRelPro;
+global String tableName;
+global String targetCol;
+global String sourceColName;
+global String sourceColValue;
+rule "Check if need clearing by transfer Ulinknormal Code"
+when
+
+then
+
+end*/

@@ -16,3 +16,7 @@ class QueryRelatedPropertyInDF(df:DataFrame) extends QueryRelatedProperty{
     value.toString
   }
 }
+//TODO, should move queryProperty to object or not.
+object QueryRelatedPropertyInDF{
+  def apply(df:DataFrame): QueryRelatedPropertyInDF = new QueryRelatedPropertyInDF(df);
+}
