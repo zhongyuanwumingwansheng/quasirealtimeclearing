@@ -70,9 +70,9 @@ public class PretreatmentTest {
 
 /*    @Test
     public void tempTest() {
-        Ulink u= new Ulink();
-        System.out.println(u.getClearingFlag());
-        List<String> list= new ArrayList<String>(){{
+        UlinkNormal un = new UlinkNormal("02", "Y1", "2", "");
+        System.out.println(un.getClearingFlag());
+*//*        List<String> list= new ArrayList<String>(){{
             add("2");
             add("3");
             add("4");
@@ -80,8 +80,8 @@ public class PretreatmentTest {
             add("6");
         }};
         kSession.setGlobal("list", list);
-        kSession.insert(u);
-        kSession.fireAllRules();
+        kSession.insert(un);
+        kSession.fireAllRules();*//*
 
     }*/
 

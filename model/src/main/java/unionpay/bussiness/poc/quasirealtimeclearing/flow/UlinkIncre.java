@@ -9,16 +9,41 @@ import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 import com.ums.QueryRelatedProperty;
 
 public class UlinkIncre extends Ulink{
+    /**
+     * 支付交易代码
+     */
     private String transCdPay = null;
+    /**
+     * 支付交易状态
+     */
     private String paySt = null;
+    /**
+     * 交易冲正状态
+     */
     private String transStRsvl = null;
+    /**
+     * 支付方路由机构代码
+     */
     private String routInstIdCd = null;
+    /**
+     * 交易应答状态
+     */
     private String transSt = null;
+    /**
+     * 产品类型
+     */
     private String prodStyle = null;
+    /**
+     * 请求保留
+     */
     private int dRsvd6 = 0;
+    /**
+     * 支付商户号
+     */
     private String mchntIdPay = null;
 
     public UlinkIncre() {
+        super();
         this.transCdPay = ValueDefault.STRING_DEFAULT;
         this.paySt = ValueDefault.STRING_DEFAULT;
         this.transStRsvl = ValueDefault.STRING_DEFAULT;
@@ -33,6 +58,8 @@ public class UlinkIncre extends Ulink{
 
     public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt,
                       String prodStyle, int dRsvd6, String mchntIdPay) {
+
+        super();
         this.transCdPay = transCdPay;
         this.paySt = paySt;
         this.transStRsvl = transStRsvl;

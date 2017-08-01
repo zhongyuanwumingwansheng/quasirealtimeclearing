@@ -8,14 +8,26 @@ import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 
 public class UlinkNormal extends Ulink{
 
-
+    /**
+     * 交易处理码
+     */
     private String procCode = null;
+    /**
+     * 交易应答码
+     */
     private String respCode = null;
+    /**
+     * 交易应答状态
+     */
     private String tranStat = null;
+    /**
+     * 支付商户号
+     */
     private String mId = null;
 
 
     public UlinkNormal() {
+        super();
         this.procCode = ValueDefault.STRING_DEFAULT;
         this.respCode = ValueDefault.STRING_DEFAULT;
         this.tranStat = ValueDefault.STRING_DEFAULT;
@@ -23,6 +35,7 @@ public class UlinkNormal extends Ulink{
     }
 
     public UlinkNormal(String procCode, String respCode, String tranStat, String mId) {
+        super();
         this.procCode = procCode;
         this.respCode = respCode;
         this.tranStat = tranStat;
