@@ -38,6 +38,7 @@ public class TestProducer {
                 producer.send(data2);
                 System.out.println("hello world");
                 Thread.sleep(1000);
+                break;
             }
 
         } catch (Exception e){
