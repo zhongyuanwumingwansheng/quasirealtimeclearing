@@ -2,7 +2,6 @@
 .classpath
 .project
 .idea
-*.xml
 
 ### Eclipse
 *.pydevproject
@@ -42,3 +41,5 @@ metastore_db/
 publish/
 *.log
 *.parquet
+.DS_Store
+compute/src/main/scala/com/.DS_Store
