@@ -1,8 +1,6 @@
 package com.ums
 
 import java.util.Properties
-
-import akka.io.Udp.SO.Broadcast
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.api.java.StorageLevels
 import com.typesafe.config._
@@ -37,11 +35,13 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val kafkaReceiverNum = setting.getInt("kafkaReceiverNum")
     val kafkaGroup = setting.getString("kafkaGroup")
     val kafkaThread = setting.getInt("kafkaThread")
-    val conf = new SparkConf().setMaster("local").setAppName(appName)
-    val sc = new SparkContext()
-    val sqlContext = new SQLContext(sc)
+    val conf = new SparkConf().setMaster("local[2]").setAppName(appName)
+    //val sc = new SparkContext(conf)
+    //val sqlContext = new SQLContext(conf)
     val streamContext = new StreamingContext(conf, Milliseconds(processInterval))
     streamContext.sparkContext.setLogLevel(logLevel)
+    val sc = streamContext.sparkContext
+    val sqlContext = new SQLContext(sc)
     //val topicMapUlinkIncremental = {}
     //val topicMapULinkTraditional = {}
     val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
@@ -67,7 +67,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
 
     //kafka setting for output
     val props: Properties = new Properties()
-    props.setProperty("metadata.broker.list", "localhost:9093")
+    props.setProperty("metadata.broker.list", "localhost:2128")
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder")
     props.put("request.required.acks", "1")
     props.put("producer.type", "async")
@@ -107,6 +107,9 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
             kSession.value.fireAllRules()
       }
     }
+    streamContext.start()
+    streamContext.awaitTermination()
+    streamContext.stop(true, true)
 
   }
 

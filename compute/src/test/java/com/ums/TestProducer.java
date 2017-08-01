@@ -7,6 +7,7 @@ import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import java.util.Properties;
+import org.json4s.*;
 
 
 /**
@@ -30,9 +31,15 @@ public class TestProducer {
     public void testProducer(){
         KeyedMessage<String, String> data1 = new KeyedMessage<String, String>("ulink_incremental","test kafka");
         KeyedMessage<String, String> data2 = new KeyedMessage<String, String>("ulink_traditional","hello world");
+
         try{
-            producer.send(data1);
-            producer.send(data2);
+            while(true){
+                producer.send(data1);
+                producer.send(data2);
+                System.out.println("hello world");
+                Thread.sleep(1000);
+            }
+
         } catch (Exception e){
             e.printStackTrace();
         }

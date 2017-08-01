@@ -1,0 +1,44 @@
+### Origin
+.classpath
+.project
+.idea
+*.xml
+
+### Eclipse
+*.pydevproject
+.metadata
+.gradle
+logs/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+*.versionsBackup
+local.properties
+release.properties
+.loadpath
+*.launch
+
+#IDEA
+*.iml
+#.settings
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+# SBT-specific
+target
+*.sbtserver*
+
+### Java
+*.class
+dependency-reduced-pom.xml
+
+metastore_db/
+publish/
+*.log
+*.parquet
