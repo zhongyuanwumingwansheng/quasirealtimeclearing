@@ -9,5 +9,8 @@ when
     getRoutInstIdCd() == "3748020000"&& getTransSt() == "0" && getProdStyle() == "51A2" && getdRsvd6() == 1001);
 
 then
-    delete($ui);
+    modify($ui){
+        setFilterFlag(Boolean.True)
+    }
+    //delete($ui);
 end

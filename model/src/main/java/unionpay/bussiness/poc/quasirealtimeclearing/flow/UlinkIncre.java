@@ -3,10 +3,7 @@ package unionpay.bussiness.poc.quasirealtimeclearing.flow;
 /**
  * Created by root on 7/27/17.
  */
-import org.apache.spark.sql.DataFrame;
-
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
-import com.ums.QueryRelatedProperty;
 
 public class UlinkIncre extends Ulink{
     /**
@@ -41,6 +38,18 @@ public class UlinkIncre extends Ulink{
      * 支付商户号
      */
     private String mchntIdPay = null;
+    /**
+     * 扩展属性, 清算标志，借贷标志，分组id，商户号
+     */
+    private String settleFlag = null;
+    private String dcFlag = null;
+    private String groupId = null;
+    private String merNo = null;
+
+    /**
+     * 筛选标志位
+     */
+    private Boolean filterFlag = Boolean.FALSE;
 
     public UlinkIncre() {
         super();
@@ -54,6 +63,10 @@ public class UlinkIncre extends Ulink{
         this.prodStyle = ValueDefault.STRING_DEFAULT;
         this.dRsvd6 = ValueDefault.INT_DEFAULT;
         this.mchntIdPay = ValueDefault.STRING_DEFAULT;
+        this.settleFlag = ValueDefault.STRING_DEFAULT;
+        this.dcFlag = ValueDefault.STRING_DEFAULT;
+        this.groupId = ValueDefault.STRING_DEFAULT;
+        this.merNo = ValueDefault.STRING_DEFAULT;
     }
 
     public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt,
@@ -102,6 +115,20 @@ public class UlinkIncre extends Ulink{
         this.mchntIdPay = mchntIdPay;
     }
 
+    public void setSettleFlag(String settleFlag) {
+        this.settleFlag = settleFlag;
+    }
+
+    public void setdcFlag(String dcFlag) {
+        this.dcFlag = dcFlag;
+    }
+
+    public void setGroupId(String groupId) {this.groupId = groupId; }
+
+    public void setMerNo(String merNo) {this.merNo = merNo;}
+
+    public void setFilterFlag(Boolean filterFlag) {this.filterFlag = filterFlag; }
+
     public String getMchntIdPay() {
         return mchntIdPay;
     }
@@ -130,6 +157,14 @@ public class UlinkIncre extends Ulink{
         return prodStyle;
     }
 
+    public String getSettleFlag() { return settleFlag; }
+
+    public String getdcFlag() { return dcFlag; }
+
+    public String getGroupId(){return groupId; }
+
+    public String getMerNo(){return merNo; }
+
     public int getdRsvd6() {
         return dRsvd6;
     }
@@ -137,6 +172,8 @@ public class UlinkIncre extends Ulink{
     public int getNum(int number){
         return number;
     }
+
+    public Boolean getFilterFlag() {return filterFlag; }
 
 
 }
