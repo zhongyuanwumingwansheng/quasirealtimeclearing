@@ -124,21 +124,32 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
               kSession.value.fireAllRules()
               itemAfterParsing.getFilterFlag
           }.map {
-            ulinIncre =>
+            item =>
+              val JItem = new JSONObject(item.toString())
+              val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
+                JItem.getString("PAY_ST"),
+                JItem.getString("TRANS_ST_RSVL"),
+                JItem.getString("ROUT_INST_ID_CD"),
+                JItem.getString("TRANS_ST"),
+                JItem.getString("PROD_STYLE"),
+                JItem.getInt("RSVD6"),
+                JItem.getString("MCHNT_ID_PAY"))
               //parsing
               //query properties
               //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的是否纳入清算
               val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
-              ulinIncre.setSettleFlag(settleFlag)
+              itemAfterParsing.setSettleFlag(settleFlag)
               //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的借贷和
               val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
-              ulinIncre.setdcFlag(dcFlag)
+              itemAfterParsing.setdcFlag(dcFlag)
               //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
               val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("Mchnt_Id_Pay"))
-              ulinIncre.setGroupId(groupId)
+              itemAfterParsing.setGroupId(groupId)
               //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
               val merNo = sysMapItemDF.queryProperty("?", "?", "?")
-              ulinIncre.setMerNo(merNo)
+              itemAfterParsing.setMerNo(merNo)
+              val jo = new JSONObject(itemAfterParsing)
+              jo.toString
           }
       }
     }

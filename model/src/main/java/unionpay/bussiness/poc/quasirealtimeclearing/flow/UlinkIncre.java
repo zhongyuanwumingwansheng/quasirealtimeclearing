@@ -5,7 +5,7 @@ package unionpay.bussiness.poc.quasirealtimeclearing.flow;
  */
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 
-public class UlinkIncre extends Ulink{
+public class UlinkIncre extends Ulink {
     /**
      * 支付交易代码
      */
