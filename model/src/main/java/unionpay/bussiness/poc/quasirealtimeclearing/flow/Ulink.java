@@ -9,33 +9,43 @@ import com.ums.SendMessage;
 
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 public class Ulink {
-    private String dcFlag = null;
+    /**
+     * 借贷标记
+     * 1: 借记
+     * -1： 贷记
+     */
+    private int dcFlag;
+    /**
+     * 清算标志
+     * 1: 清算
+     * -1： 不清算
+     */
+    private int clearingFlag;
 
-    private String clearingFlag = "-2";
-
+    //TODO,eliminate Hard Code
     public Ulink() {
-        this.dcFlag = ValueDefault.STRING_DEFAULT;
-        this.clearingFlag = ValueDefault.STRING_DEFAULT;
+        this.dcFlag = 1;
+        this.clearingFlag = 1;
     }
 
-    public Ulink(String dcFlag, String clearingFlag) {
+    public Ulink(int dcFlag, int clearingFlag) {
         this.dcFlag = dcFlag;
         this.clearingFlag = clearingFlag;
     }
 
-    public void setDcFlag(String dcFlag) {
+    public void setDcFlag(int dcFlag) {
         this.dcFlag = dcFlag;
     }
 
-    public void setClearingFlag(String clearingFlag) {
+    public void setClearingFlag(int clearingFlag) {
         this.clearingFlag = clearingFlag;
     }
 
-    public String getDcFlag() {
+    public int getDcFlag() {
         return dcFlag;
     }
 
-    public String getClearingFlag() {
+    public int getClearingFlag() {
         return clearingFlag;
     }
 

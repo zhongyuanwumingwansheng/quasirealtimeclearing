@@ -26,7 +26,7 @@
         <junit.version>4.11</junit.version>
         <tomcat.version>7.0.42</tomcat.version>
         <hbase.version>1.2.0-cdh5.7.0</hbase.version>
-        <scala.version>2.10.6</scala.version>
+        <scala.version>2.11.8</scala.version>
         <hadoop.version>2.6.0-cdh5.7.0</hadoop.version>
         <jackson.version>2.2.3</jackson.version>
         <redis.version>2.7.0</redis.version>

@@ -6,4 +6,5 @@ package unionpay.bussiness.poc.quasirealtimeclearing;
 public class ValueDefault {
     public final static String STRING_DEFAULT = "";
     public final static int INT_DEFAULT = 0;
+    public final static double DOUBLE_DEFAULT = 0;
 }
