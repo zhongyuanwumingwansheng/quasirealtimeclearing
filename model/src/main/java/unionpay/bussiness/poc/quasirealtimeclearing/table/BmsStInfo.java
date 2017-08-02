@@ -10,22 +10,22 @@ public class BmsStInfo {
     /**
      * 商户ID
      */
-    private String merId=null;
+    private String merId;
     /**
      * 商户编号
      */
-    private String merNo =null;
+    private String merNo;
 /*    //Maybe use later
     private String batDate=null;
     private String instId=null;*/
     /**
      * 主应用
      */
-    private String mappMain=null;
+    private String mappMain;
     /**
      * 多应用类型
      */
-    private int apptypeId=0;
+    private int apptypeId;
     /**
      * 计费方式
      * 00 - 不收费
@@ -33,23 +33,23 @@ public class BmsStInfo {
      * 11 - 固定金额收费
      * 其他类型待处理
      */
-    private String creditCalcType=null;
+    private String creditCalcType;
     /**
      * 费率
      */
-    private double creditCalcRate=0;
+    private double creditCalcRate;
     /**
      * 手续费
      */
-    private double creditCalcAmt=0;
+    private double creditCalcAmt;
     /**
      * 最低收费金额
      */
-    private double creditMinAmt=0;
+    private double creditMinAmt;
     /**
      * 最高收费金额
      */
-    private double creditMaxAmt=0;
+    private double creditMaxAmt;
     public BmsStInfo() {
         this.merId = ValueDefault.STRING_DEFAULT;
         this.merNo = ValueDefault.STRING_DEFAULT;

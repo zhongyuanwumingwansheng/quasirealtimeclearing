@@ -41,7 +41,7 @@ public class SysMapItemInfo {
         this.mapResult = ValueDefault.STRING_DEFAULT;
     }
 
-    private String mapId=null;
-    private String srcItem=null;
-    private String mapResult=null;
+    private String mapId;
+    private String srcItem;
+    private String mapResult;
 }

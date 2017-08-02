@@ -1,9 +1,5 @@
 package unionpay.bussiness.poc.quasirealtimeclearing.flow;
-
-import unionpay.bussiness.poc.quasirealtimeclearing.QueryRelatedProperty;
-import unionpay.bussiness.poc.quasirealtimeclearing.SendMessage;
-//import com.ums.QueryRelatedProperty;
-//import com.ums.SendMessage;
+import java.util.Date;
 
 /**
  * Created by root on 7/31/17.
@@ -11,6 +7,7 @@ import unionpay.bussiness.poc.quasirealtimeclearing.SendMessage;
 
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 public class Ulink {
+
     /**
      * 借贷标记
      * 1: 借记
@@ -19,44 +16,90 @@ public class Ulink {
     private int dcFlag;
     /**
      * 清算标志
-     * 1: 清算
-     * -1： 不清算
      */
-    private int clearingFlag;
+    private String clearingFlag;
+    /**
+     * 商户ID
+     */
+    private int merId;
+    /**
+     * 分组ID
+     */
+    private String groupId;
+    /**
+     * 商户编号
+     */
+    private String merNo;
 
-    //TODO,eliminate Hard Code
-    public Ulink() {
-        this.dcFlag = 1;
-        this.clearingFlag = 1;
+    /**
+     * 流水时间
+     */
+    private Date uTime;
+
+    public int getDcFlag() {
+        return dcFlag;
     }
 
-    public Ulink(int dcFlag, int clearingFlag) {
-        this.dcFlag = dcFlag;
-        this.clearingFlag = clearingFlag;
+    public String getClearingFlag() {
+        return clearingFlag;
+    }
+
+    public int getMerId() {
+        return merId;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getMerNo() {
+        return merNo;
+    }
+
+    public Date getuTime() {
+        return uTime;
     }
 
     public void setDcFlag(int dcFlag) {
         this.dcFlag = dcFlag;
     }
 
-    public void setClearingFlag(int clearingFlag) {
+    public void setClearingFlag(String clearingFlag) {
         this.clearingFlag = clearingFlag;
     }
 
-    public int getDcFlag() {
-        return dcFlag;
+    public void setMerId(int merId) {
+        this.merId = merId;
     }
 
-    public int getClearingFlag() {
-        return clearingFlag;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
-    /*
-    public String queryProperty(QueryRelatedProperty qRelPro, String tableName, String targetCol, String sourceColName, String sourceColValue){
-        return qRelPro.queryProperty(tableName, targetCol, sourceColName, sourceColValue);
+
+    public void setMerNo(String merNo) {
+        this.merNo = merNo;
     }
-    */
-    public void sendMessage(SendMessage sMsg,String message){
-         sMsg.sendMessage(message);
+
+    public void setuTime(Date uTime) {
+        this.uTime = uTime;
+    }
+    //TODO,eliminate Hard Code
+    public Ulink() {
+        this.dcFlag = ValueDefault.INT_DEFAULT;
+        this.clearingFlag = ValueDefault.STRING_DEFAULT;
+        this.merId = ValueDefault.INT_DEFAULT;
+        this.groupId = ValueDefault.STRING_DEFAULT;
+        this.merNo = ValueDefault.STRING_DEFAULT;
+        this.uTime = new Date();
+    }
+
+    public Ulink(int dcFlag, String clearingFlag, int merId, String groupId, String merNo, Date uTime) {
+        this.dcFlag = dcFlag;
+        this.clearingFlag = clearingFlag;
+        this.merId = merId;
+        this.groupId = groupId;
+        this.merNo = merNo;
+        this.uTime = uTime;
     }
 
 }

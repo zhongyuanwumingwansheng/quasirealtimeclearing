@@ -22,56 +22,56 @@ public class SysGroupItemInfo {
     /**
      * 银商机构号
      */
-    private String instId=null;
+    private String instId;
     /**
      * 批量日期
      */
-    private String batDate=null;
+    private String batDate;
     /**
      * 分组ID
      */
-    private String groupDd=null;
+    private String groupId;
     /**
      * 分组类型ID
      */
-    private String groupTypeId=null;
+    private String groupTypeId;
     /**
      * 分组成员
      */
-    private String item=null;
+    private String item;
     /**
      * 生效日期
      */
-    private String becomeEffectiveDate=null;
+    private String becomeEffectiveDate;
     /**
      * 失效日期
      */
-    private String lostEffectiveDate=null;
+    private String lostEffectiveDate;
     /**
      * 记录版本
      */
-    private int rcdVer=0;
+    private int rcdVer;
     /**
      * 新增记录时间
      */
-    private String addDatetime=null;
+    private String addDatetime;
     /**
      * 新增记录操作员
      */
-    private String addUserId=null;
+    private String addUserId;
     /**
      * 修改记录时间
      */
-    private String updDatetime=null;
+    private String updDatetime;
     /**
      * 修改记录操作员
      */
-    private String updUserId=null;
+    private String updUserId;
 
     public SysGroupItemInfo() {
         this.instId = ValueDefault.STRING_DEFAULT;
         this.batDate = ValueDefault.STRING_DEFAULT;
-        this.groupDd = ValueDefault.STRING_DEFAULT;
+        this.groupId = ValueDefault.STRING_DEFAULT;
         this.groupTypeId = ValueDefault.STRING_DEFAULT;
         this.item = ValueDefault.STRING_DEFAULT;
         this.becomeEffectiveDate = ValueDefault.STRING_DEFAULT;
@@ -83,10 +83,10 @@ public class SysGroupItemInfo {
         this.updUserId = ValueDefault.STRING_DEFAULT;
     }
 
-    public SysGroupItemInfo(String instId, String batDate, String groupDd, String groupTypeId, String item, String becomeEffectiveDate, String lostEffectiveDate, int rcdVer, String addDatetime, String addUserId, String updDatetime, String updUserId) {
+    public SysGroupItemInfo(String instId, String batDate, String groupId, String groupTypeId, String item, String becomeEffectiveDate, String lostEffectiveDate, int rcdVer, String addDatetime, String addUserId, String updDatetime, String updUserId) {
         this.instId = instId;
         this.batDate = batDate;
-        this.groupDd = groupDd;
+        this.groupId = groupId;
         this.groupTypeId = groupTypeId;
         this.item = item;
         this.becomeEffectiveDate = becomeEffectiveDate;
@@ -106,8 +106,8 @@ public class SysGroupItemInfo {
         return batDate;
     }
 
-    public String getGroupDd() {
-        return groupDd;
+    public String getGroupId() {
+        return groupId;
     }
 
     public String getGroupTypeId() {
@@ -154,8 +154,8 @@ public class SysGroupItemInfo {
         this.batDate = batDate;
     }
 
-    public void setGroupDd(String groupDd) {
-        this.groupDd = groupDd;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public void setGroupTypeId(String groupTypeId) {

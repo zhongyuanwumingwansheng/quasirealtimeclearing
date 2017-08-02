@@ -38,19 +38,19 @@ public class SysTxnCdInfo {
     /**
      * 代码索引
      */
-    private String txnKey =null;
+    private String txnKey;
     /**
      * 交易代码
      */
-    private String txnCode =null;
+    private String txnCode;
     /**
      * 交易描述
      */
-    private String txnDes =null;
+    private String txnDes;
     /**
      * BMS交易代码
      */
-    private String bmsTxnCode =null;
+    private String bmsTxnCode;
     /**
      * 清算标志
      * 0：不清算
@@ -70,37 +70,37 @@ public class SysTxnCdInfo {
      * W：回传当地
 
      */
-    private String settFlg =null;
+    private String settFlg;
     /**
      * 借贷标记
      * 1: 借记
      * -1： 贷记
      */
-    private int dcFlg =0;
+    private int dcFlg;
     /**
      * 交易类型分类标识
      */
-    private String txnCodeGrp =null;
+    private String txnCodeGrp;
     /**
      * 记录版本
      */
-    private int rcdVer =0;
+    private int rcdVer;
     /**
      * 新增记录时间
      */
-    private String addDatetime =null;
+    private String addDatetime;
     /**
      * 新增记录操作员
      */
-    private String addUserId =null;
+    private String addUserId;
     /**
      * 修改记录时间
      */
-    private String updDatetime =null;
+    private String updDatetime;
     /**
      * 修改记录操作员
      */
-    private String updUserId =null;
+    private String updUserId;
 
     public SysTxnCdInfo() {
         this.txnKey = ValueDefault.STRING_DEFAULT;

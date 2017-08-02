@@ -5,73 +5,82 @@ package unionpay.bussiness.poc.quasirealtimeclearing.flow;
  */
 import unionpay.bussiness.poc.quasirealtimeclearing.ValueDefault;
 
+import java.util.Date;
+
 public class UlinkIncre extends Ulink {
     /**
      * 支付交易代码
      */
-    private String transCdPay = null;
+    private String transCdPay;
     /**
      * 支付交易状态
      */
-    private String paySt = null;
+    private String paySt;
     /**
      * 交易冲正状态
      */
-    private String transStRsvl = null;
+    private String transStRsvl;
     /**
      * 支付方路由机构代码
      */
-    private String routInstIdCd = null;
+    private String routInstIdCd;
     /**
      * 交易应答状态
      */
-    private String transSt = null;
+    private String transSt;
     /**
      * 产品类型
      */
-    private String prodStyle = null;
+    private String prodStyle;
     /**
      * 请求保留
      */
-    private int dRsvd6 = 0;
+    private int dRsvd6;
     /**
      * 支付商户号
      */
-    private String mchntIdPay = null;
-    /**
-     * 扩展属性, 清算标志，借贷标志，分组id，商户号
-     */
-    private String settleFlag = null;
-    private String dcFlag = null;
-    private String groupId = null;
-    private String merNo = null;
+    private String mchntIdPay;
+
+    public double getExchange() {
+        return exchange;
+    }
+
+    public void setExchange(double exchange) {
+        this.exchange = exchange;
+    }
 
     /**
      * 筛选标志位
+
      */
-    private Boolean filterFlag = Boolean.FALSE;
+    private boolean filterFlag;
+
+    /**
+     * 交易金额,单位分
+     */
+    private double transAmt;
+
+    /**
+     * 手续费,单位分
+     */
+    private double exchange;
 
     public UlinkIncre() {
         super();
         this.transCdPay = ValueDefault.STRING_DEFAULT;
         this.paySt = ValueDefault.STRING_DEFAULT;
         this.transStRsvl = ValueDefault.STRING_DEFAULT;
-
         this.routInstIdCd = ValueDefault.STRING_DEFAULT;
-
         this.transSt = ValueDefault.STRING_DEFAULT;
         this.prodStyle = ValueDefault.STRING_DEFAULT;
         this.dRsvd6 = ValueDefault.INT_DEFAULT;
         this.mchntIdPay = ValueDefault.STRING_DEFAULT;
-        this.settleFlag = ValueDefault.STRING_DEFAULT;
-        this.dcFlag = ValueDefault.STRING_DEFAULT;
-        this.groupId = ValueDefault.STRING_DEFAULT;
-        this.merNo = ValueDefault.STRING_DEFAULT;
+        this.filterFlag = ValueDefault.BOOLEAN_DEFAULT;
+        this.transAmt = ValueDefault.DOUBLE_DEFAULT;
+        this.exchange = ValueDefault.DOUBLE_DEFAULT;
     }
 
-    public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt,
-                      String prodStyle, int dRsvd6, String mchntIdPay) {
-
+    public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt, String prodStyle, int dRsvd6, String mchntIdPay, boolean filterFlag, double transAmt, double exchange) {
         super();
         this.transCdPay = transCdPay;
         this.paySt = paySt;
@@ -81,6 +90,9 @@ public class UlinkIncre extends Ulink {
         this.prodStyle = prodStyle;
         this.dRsvd6 = dRsvd6;
         this.mchntIdPay = mchntIdPay;
+        this.filterFlag = filterFlag;
+        this.transAmt = transAmt;
+        this.exchange = exchange;
     }
 
     public void setTransCdPay(String transCdPay) {
@@ -115,19 +127,15 @@ public class UlinkIncre extends Ulink {
         this.mchntIdPay = mchntIdPay;
     }
 
-    public void setSettleFlag(String settleFlag) {
-        this.settleFlag = settleFlag;
+    public void setFilterFlag(boolean filterFlag) {this.filterFlag = filterFlag; }
+
+    public void setTransAmt(double transAmt) {
+        this.transAmt = transAmt;
     }
 
-    public void setdcFlag(String dcFlag) {
-        this.dcFlag = dcFlag;
+    public double getTransAmt() {
+        return transAmt;
     }
-
-    public void setGroupId(String groupId) {this.groupId = groupId; }
-
-    public void setMerNo(String merNo) {this.merNo = merNo;}
-
-    public void setFilterFlag(Boolean filterFlag) {this.filterFlag = filterFlag; }
 
     public String getMchntIdPay() {
         return mchntIdPay;
@@ -157,23 +165,11 @@ public class UlinkIncre extends Ulink {
         return prodStyle;
     }
 
-    public String getSettleFlag() { return settleFlag; }
-
-    public String getdcFlag() { return dcFlag; }
-
-    public String getGroupId(){return groupId; }
-
-    public String getMerNo(){return merNo; }
-
     public int getdRsvd6() {
         return dRsvd6;
     }
 
-    public int getNum(int number){
-        return number;
-    }
-
-    public Boolean getFilterFlag() {return filterFlag; }
+    public boolean getFilterFlag() {return filterFlag; }
 
 
 }
