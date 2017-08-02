@@ -1,4 +1,4 @@
-package com.ums
+package unionpay.bussiness.poc.quasirealtimeclearing
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
 

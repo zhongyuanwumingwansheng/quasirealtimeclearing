@@ -1,7 +1,9 @@
 package unionpay.bussiness.poc.quasirealtimeclearing.flow;
 
-import com.ums.QueryRelatedProperty;
-import com.ums.SendMessage;
+import unionpay.bussiness.poc.quasirealtimeclearing.QueryRelatedProperty;
+import unionpay.bussiness.poc.quasirealtimeclearing.SendMessage;
+//import com.ums.QueryRelatedProperty;
+//import com.ums.SendMessage;
 
 /**
  * Created by root on 7/31/17.
@@ -48,11 +50,13 @@ public class Ulink {
     public int getClearingFlag() {
         return clearingFlag;
     }
-
+    /*
     public String queryProperty(QueryRelatedProperty qRelPro, String tableName, String targetCol, String sourceColName, String sourceColValue){
         return qRelPro.queryProperty(tableName, targetCol, sourceColName, sourceColValue);
     }
+    */
     public void sendMessage(SendMessage sMsg,String message){
          sMsg.sendMessage(message);
     }
+
 }

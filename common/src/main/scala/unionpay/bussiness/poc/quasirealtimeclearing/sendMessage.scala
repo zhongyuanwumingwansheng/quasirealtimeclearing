@@ -1,4 +1,5 @@
-package com.ums
+package unionpay.bussiness.poc.quasirealtimeclearing
+
 import kafka.javaapi.producer.Producer
 import kafka.producer.KeyedMessage
 

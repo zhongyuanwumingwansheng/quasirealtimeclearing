@@ -20,7 +20,7 @@ import org.kie.api.builder.ReleaseId
 import org.kie.api.runtime.KieContainer
 import org.kie.api.runtime.KieSession
 import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkIncre, UlinkNormal}
-import com.ums.QueryRelatedPropertyInDF
+import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka}
 import org.json._
 //import org.json4s._
 //import org.json4s.native.JsonMethods._
@@ -103,6 +103,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       DiscretizedRdd =>
         DiscretizedRdd.foreachPartition{
           partition => partition.filter {
+                //假设输入的数据的每行交易清单是符合以json字符串格式的 string
             item =>
               val JItem = new JSONObject(item.toString())
               val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
