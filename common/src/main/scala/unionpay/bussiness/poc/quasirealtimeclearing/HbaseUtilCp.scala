@@ -2,7 +2,8 @@ package unionpay.bussiness.poc.quasirealtimeclearing
 
 import java.util
 import java.util.Date
-import org.apache.hadoop.hbase.client.{Connection,ConnectionFactory,HBaseAdmin,HTable,Put,Get}
+
+import org.apache.hadoop.hbase.client._
 //import it.unimi.dsi.fastutil.objects.{Object2ObjectOpenHashMap, ObjectArrayList, ObjectArraySet}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HTableDescriptor, HColumnDescriptor}
@@ -13,7 +14,7 @@ import org.apache.hadoop.hbase.util.Bytes
   *
   * Created by supertool on 2016/6/30.
   */
-class HbaseUtilCp(conf: HBaseConfiguration, connection: Connection, admin: HBaseAdmin, DEFAULT_COLUMN_FAMILIES: String) extends Serializable {
+class HbaseUtilCp(conf: HBaseConfiguration, connection: Connection, admin: Admin, DEFAULT_COLUMN_FAMILIES: String) extends Serializable {
 
   def createTable(tableName: String): Unit = {
     try {
@@ -176,7 +177,7 @@ object HbaseUtilCp extends Serializable {
   var hbaseU: HbaseUtilCp = null
   private var conf: HBaseConfiguration = null
   private var connection: Connection = null
-  var admin: HBaseAdmin = null
+  var admin: Admin = null
 
   def apply(zkHosts: String): HbaseUtilCp = {
     if (connection == null || hbaseU == null) {
@@ -184,7 +185,7 @@ object HbaseUtilCp extends Serializable {
       conf.set("hbase.zookeeper.quorum", zkHosts)
       connection = ConnectionFactory.createConnection(conf)
       println(connection)
-      admin = new HBaseAdmin(conf)
+      admin = connection.getAdmin
       println(admin)
       hbaseU = new HbaseUtilCp(conf, connection, admin, "data")
     }

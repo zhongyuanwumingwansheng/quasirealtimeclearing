@@ -23,7 +23,7 @@ import org.kie.api.runtime.KieSession
 import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkIncre, UlinkNormal}
 import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka, HbaseUtilCp}
 import org.json._
-import com.ums.HashMapAccumalatorParam
+//import com.ums.HashMapAccumalatorParam
 import org.apache.spark.AccumulatorParam
 import scala.collection.mutable.Map
 //import org.json4s._
@@ -54,15 +54,25 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val sc = streamContext.sparkContext
 
     //初始化一个用于汇总的累加器
-    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam[Map[String, Double]])
+    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
     val sqlContext = new SQLContext(sc)
     //val topicMapUlinkIncremental = {}
     //val topicMapULinkTraditional = {}
-    val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
-    val kafkaStreams = (1 to kafkaReceiverNum).map { _ =>
-      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, topicMap, StorageLevels.MEMORY_AND_DISK_SER)
+    //val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
+    //ulink增量对应的topic数据读入
+    val ulinkIncreTopicMap = scala.collection.immutable.Map("ulink_incremental" -> 1)
+    val ulinkIncreKafkaStreams = (1 to kafkaReceiverNum).map { _ =>
+      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkIncreTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
     }
-    val lines = streamContext.union(kafkaStreams)
+    val increLines = streamContext.union(ulinkIncreKafkaStreams)
+    //ulink传统对应的topic数据读入
+    val ulinkTraTopicMap = scala.collection.immutable.Map("ulink_incremental" -> 1)
+    val ulinkTraKafkaStreams = (1 to kafkaReceiverNum).map { _ =>
+      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkIncreTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
+    }
+    val tradLines = streamContext.union(ulinkIncreKafkaStreams)
+
+    //导入需要找相应字段的外部表
     val sysTxnCodeDF = new QueryRelatedPropertyInDF(sqlContext, "SYS_TXN_CODE_INFO table path")
     val sysGroupItemDF = new QueryRelatedPropertyInDF(sqlContext, "sys group item info table path")
     val sysMapItemDF = new QueryRelatedPropertyInDF(sqlContext, "sys map item info table path")
@@ -98,8 +108,12 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val hbaseUtils = HbaseUtilCp("localhost:2128")
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
-
+    //无需从远程服务器上pull，rule包直接放置在本地
+    val ks = KieServices.Factory.get()
+    val kieContainer = ks.newKieClasspathContainer()
+    val kieSession = kieContainer.newKieSession()
     //apply drools rules to each item in rdd
+    /*
     val ks = KieServices.Factory.get()
     val releaseId = ks.newReleaseId("com.ums", "ruleEngine", "1.0.0")
     val kieContainer = ks.newKieContainer(releaseId)
@@ -108,7 +122,8 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val broadcastKieScanner = sc.broadcast(scanner)
     broadcastKieScanner.value.start(10000L)
     val kieSession = kieContainer.newKieSession("filterSession")
-    kieSession.setGlobal("producer", sendToKafkaInc)
+    */
+    //kieSession.setGlobal("producer", sendToKafkaInc)
 
     //val queryServiceImp:QueryRelatedProperty = new QueryRelatedPropertyInDF(sys_group_item_info_df)
     //kieSession.setGlobal("queryService", queryServiceImp)
@@ -120,7 +135,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       DiscretizedRdd =>
         DiscretizedRdd.foreachPartition{
     */
-    val result = lines.mapPartitions {
+    val incrementalResult = increLines.mapPartitions {
       partition => {
         val newPartition = partition.filter {
           //假设输入的数据的每行交易清单是符合以json字符串格式的 string
@@ -223,7 +238,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     }
     //sumMapAccum.toString()
-    result.saveAsObjectFiles("ums_poc", ".obj")
+    incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
 
     streamContext.start()
     streamContext.awaitTermination()

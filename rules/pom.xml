@@ -18,11 +18,6 @@
         </dependency>
         <dependency>
             <groupId>unionpay.bussiness.poc</groupId>
-            <artifactId>compute</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>unionpay.bussiness.poc</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
