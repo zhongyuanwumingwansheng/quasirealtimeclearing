@@ -41,6 +41,19 @@ public class UlinkIncre extends Ulink {
      */
     private String mchntIdPay;
 
+    public String getTermIdPay() {
+        return termIdPay;
+    }
+
+    public void setTermIdPay(String termIdPay) {
+        this.termIdPay = termIdPay;
+    }
+
+    /**
+     * 支付终端号
+     */
+    private String termIdPay;
+
     public double getExchange() {
         return exchange;
     }
@@ -75,12 +88,13 @@ public class UlinkIncre extends Ulink {
         this.prodStyle = ValueDefault.STRING_DEFAULT;
         this.dRsvd6 = ValueDefault.INT_DEFAULT;
         this.mchntIdPay = ValueDefault.STRING_DEFAULT;
+        this.termIdPay = ValueDefault.STRING_DEFAULT;
         this.filterFlag = ValueDefault.BOOLEAN_DEFAULT;
         this.transAmt = ValueDefault.DOUBLE_DEFAULT;
         this.exchange = ValueDefault.DOUBLE_DEFAULT;
     }
 
-    public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt, String prodStyle, int dRsvd6, String mchntIdPay, boolean filterFlag, double transAmt, double exchange) {
+    public UlinkIncre(String transCdPay, String paySt, String transStRsvl, String routInstIdCd, String transSt, String prodStyle, int dRsvd6, String mchntIdPay, String termIdPay, boolean filterFlag, double transAmt, double exchange) {
         super();
         this.transCdPay = transCdPay;
         this.paySt = paySt;
@@ -90,6 +104,7 @@ public class UlinkIncre extends Ulink {
         this.prodStyle = prodStyle;
         this.dRsvd6 = dRsvd6;
         this.mchntIdPay = mchntIdPay;
+        this.termIdPay = termIdPay;
         this.filterFlag = filterFlag;
         this.transAmt = transAmt;
         this.exchange = exchange;

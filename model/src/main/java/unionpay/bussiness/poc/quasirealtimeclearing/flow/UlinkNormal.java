@@ -20,10 +20,61 @@ public class UlinkNormal extends Ulink{
      * 交易应答状态
      */
     private String tranStat = null;
+
+    public String gettId() {
+        return tId;
+    }
+
+    public void settId(String tId) {
+        this.tId = tId;
+    }
+
     /**
      * 支付商户号
      */
     private String mId = null;
+    /**
+     * 支付商户号
+     */
+    private String tId = null;
+    /**
+     * 无
+     */
+    private String serConcode = null;
+
+    public String getSerConcode() {
+        return serConcode;
+    }
+
+    public void setSerConcode(String serConcode) {
+        this.serConcode = serConcode;
+    }
+
+    public String getMsgType() {
+        return msgType;
+    }
+
+    public void setMsgType(String msgType) {
+        this.msgType = msgType;
+    }
+
+    /**
+     * 消息类型
+     */
+    private String msgType = null;
+
+    public boolean getFilterFlag() {
+        return filterFlag;
+    }
+
+    public void setFilterFlag(boolean filterFlag) {
+        this.filterFlag = filterFlag;
+    }
+
+    /**
+     * 筛选标志位
+     */
+    private boolean filterFlag;
 
     /**
      * 交易金额,单位元
@@ -50,16 +101,24 @@ public class UlinkNormal extends Ulink{
         this.respCode = ValueDefault.STRING_DEFAULT;
         this.tranStat = ValueDefault.STRING_DEFAULT;
         this.mId = ValueDefault.STRING_DEFAULT;
+        this.tId = ValueDefault.STRING_DEFAULT;
+        this.msgType = ValueDefault.STRING_DEFAULT;
+        this.serConcode =ValueDefault.STRING_DEFAULT;
+        this.filterFlag = ValueDefault.BOOLEAN_DEFAULT;
         this.txnAmt = ValueDefault.DOUBLE_DEFAULT;
         this.exchange =ValueDefault.DOUBLE_DEFAULT;
     }
 
-    public UlinkNormal(String procCode, String respCode, String tranStat, String mId, double txnAmt, double exchange) {
+    public UlinkNormal(String procCode, String respCode, String tranStat, String mId, String tId, String serConcode, String msgType, boolean filterFlag, double txnAmt, double exchange) {
         super();
         this.procCode = procCode;
         this.respCode = respCode;
         this.tranStat = tranStat;
         this.mId =mId;
+        this.tId =tId;
+        this.serConcode = serConcode;
+        this.msgType = msgType;
+        this.filterFlag = filterFlag;
         this.txnAmt =txnAmt;
         this.exchange=exchange;
     }

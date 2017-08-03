@@ -16,9 +16,13 @@ import org.kie.api.builder.KieScanner
 import org.kie.api.builder.ReleaseId
 import org.kie.api.runtime.KieContainer
 import org.kie.api.runtime.KieSession
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkNormal}
+import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka, HbaseUtilCp}
 import org.json._
 import org.kie.api.KieServices
-
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkIncre
+import unionpay.bussiness.poc.quasirealtimeclearing.HbaseUtilCp
+import unionpay.bussiness.poc.quasirealtimeclearing.{HashMapAccumalatorParam, QueryRelatedPropertyInDF, SendToKafka, SendMessage}
 //import com.ums.HashMapAccumalatorParam
 import scala.collection.mutable.Map
 //import org.json4s._
@@ -26,7 +30,7 @@ import scala.collection.mutable.Map
 /**
   * Created by zhaikaixuan on 27/07/2017.
   */
-object ApplyULinkIncreRuleToSparkStream extends Logging{
+object ApplyULinkNormalRuleToSparkStream extends Logging{
   def main(args: Array[String]): Unit = {
     val setting:Config = ConfigFactory.load()
     println("the answer is: " + setting.getString("simple-app.answer"))
@@ -49,25 +53,15 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val sc = streamContext.sparkContext
 
     //初始化一个用于汇总的累加器
-    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
+    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam[Map[String, Double]])
     val sqlContext = new SQLContext(sc)
     //val topicMapUlinkIncremental = {}
     //val topicMapULinkTraditional = {}
-    //val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
-    //ulink增量对应的topic数据读入
-    val ulinkIncreTopicMap = scala.collection.immutable.Map("ulink_incremental" -> 1)
-    val ulinkIncreKafkaStreams = (1 to kafkaReceiverNum).map { _ =>
-      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkIncreTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
+    val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
+    val kafkaStreams = (1 to kafkaReceiverNum).map { _ =>
+      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, topicMap, StorageLevels.MEMORY_AND_DISK_SER)
     }
-    val increLines = streamContext.union(ulinkIncreKafkaStreams)
-    //ulink传统对应的topic数据读入
-    val ulinkTraTopicMap = scala.collection.immutable.Map("ulink_incremental" -> 1)
-    val ulinkTraKafkaStreams = (1 to kafkaReceiverNum).map { _ =>
-      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkIncreTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
-    }
-    val tradLines = streamContext.union(ulinkIncreKafkaStreams)
-
-    //导入需要找相应字段的外部表
+    val lines = streamContext.union(kafkaStreams)
     val sysTxnCodeDF = new QueryRelatedPropertyInDF(sqlContext, "SYS_TXN_CODE_INFO table path")
     val sysGroupItemDF = new QueryRelatedPropertyInDF(sqlContext, "sys group item info table path")
     val sysMapItemDF = new QueryRelatedPropertyInDF(sqlContext, "sys map item info table path")
@@ -96,19 +90,15 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     props.put("producer.type", "async")
     val config = new ProducerConfig(props)
     val kafkaProducer = new Producer[String, String](config)
-    val sendToKafkaInc:SendMessage = new SendToKafka(kafkaProducer, "ulink_incremental")
+    val sendToKafkaInc:SendMessage = new SendToKafka(kafkaProducer, "ulink_normal")
     //val sendToKafkaTra:SendMessage = new SendToKafka(kafkaProducer, "ulink_traditional")
 
     //hbase initialization
     val hbaseUtils = HbaseUtilCp("localhost:2128")
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
-    //无需从远程服务器上pull，rule包直接放置在本地
-    val ks = KieServices.Factory.get()
-    val kieContainer = ks.newKieClasspathContainer()
-    val kieSession = kieContainer.newKieSession()
+
     //apply drools rules to each item in rdd
-    /*
     val ks = KieServices.Factory.get()
     val releaseId = ks.newReleaseId("com.ums", "ruleEngine", "1.0.0")
     val kieContainer = ks.newKieContainer(releaseId)
@@ -117,8 +107,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val broadcastKieScanner = sc.broadcast(scanner)
     broadcastKieScanner.value.start(10000L)
     val kieSession = kieContainer.newKieSession("filterSession")
-    */
-    //kieSession.setGlobal("producer", sendToKafkaInc)
+    kieSession.setGlobal("producer", sendToKafkaInc)
 
     //val queryServiceImp:QueryRelatedProperty = new QueryRelatedPropertyInDF(sys_group_item_info_df)
     //kieSession.setGlobal("queryService", queryServiceImp)
@@ -130,21 +119,19 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       DiscretizedRdd =>
         DiscretizedRdd.foreachPartition{
     */
-    val incrementalResult = increLines.mapPartitions {
+    val result = lines.mapPartitions {
       partition => {
         val newPartition = partition.filter {
           //假设输入的数据的每行交易清单是符合以json字符串格式的 string
           item =>
             val JItem = new JSONObject(item.toString())
-            val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
-              JItem.getString("PAY_ST"),
-              JItem.getString("TRANS_ST_RSVL"),
-              JItem.getString("ROUT_INST_ID_CD"),
-              JItem.getString("TRANS_ST"),
-              JItem.getString("PROD_STYLE"),
-              JItem.getInt("RSVD6"),
-              JItem.getString("MCHNT_ID_PAY"),
-              JItem.getString("TERM_ID_PAY"),
+            val itemAfterParsing = new UlinkNormal(JItem.getString("PROC_CODE"),
+              JItem.getString("RESP_CODE"),
+              JItem.getString("TRAN_STATUS"),
+              JItem.getString("MID"),
+              JItem.getString("TID"),
+              JItem.getString("MSG_TYPE"),
+              JItem.getString("SER_CONCODE"),
               false,
               0,
               0)
@@ -161,37 +148,38 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
         }.map {
           item =>
             val JItem = new JSONObject(item.toString())
-            val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
-              JItem.getString("PAY_ST"),
-              JItem.getString("TRANS_ST_RSVL"),
-              JItem.getString("ROUT_INST_ID_CD"),
-              JItem.getString("TRANS_ST"),
-              JItem.getString("PROD_STYLE"),
-              JItem.getInt("RSVD6"),
-              JItem.getString("MCHNT_ID_PAY"),
-              JItem.getString("TERM_ID_PAY"),
+            val itemAfterParsing = new UlinkNormal(JItem.getString("PROC_CODE"),
+              JItem.getString("RESP_CODE"),
+              JItem.getString("TRAN_STATUS"),
+              JItem.getString("MID"),
+              JItem.getString("TID"),
+              JItem.getString("MSG_TYPE"),
+              JItem.getString("SER_CONCODE"),
               false,
               0,
               0)
             //parsing
             //query properties
-            //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的是否纳入清算
+            //TODO,settleFlag,dcFlag
+            //根据MSG_TYPE[1,2]|PROC_CODE[0,1]| SER_CONCODE这3个字段，
+            // 与SYS_TXN_CODE_INFO表中txn_key 字段的中第一个字段的
+            //2-3,第二个0-1,第三个匹配,判断是否纳入清算
             val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
             itemAfterParsing.setClearingFlag(settleFlag)
-            //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的借贷
+            //同上,去SYS_TXN_CODE_INFO表中找到相应的借贷
             val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
             itemAfterParsing.setDcFlag(dcFlag.toInt)
             //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
-            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("Mchnt_Id_Pay"))
+            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("MID"))
             itemAfterParsing.setGroupId(groupId)
             //TODO
-            //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
+            //源字段为 MID+ TID，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
             val merNo = sysMapItemDF.queryProperty("?", "?", "?")
             itemAfterParsing.setMerNo(merNo)
             val merId = sysMapItemDF.queryProperty("?", "?", "?")
             itemAfterParsing.setMerId(merId.toInt)
             //查看交易金额
-            itemAfterParsing.setTransAmt(JItem.getDouble("TRANS_AMT"))
+            itemAfterParsing.setTxnAmt(JItem.getDouble("TRANS_AMT"))
             //val jo = new JSONObject(itemAfterParsing)
             //jo.toString
             itemAfterParsing
@@ -207,9 +195,9 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
               case Some(calType) => {
                 if (calType == "10"){
                   val creditCalcRate = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_rate", "mer_no", item.getMerNo).getOrElse("-1")
-                  if (creditCalcRate.toDouble * item.getTransAmt < creditMinAmt.toDouble) item.setExchange(creditMinAmt.toDouble)
-                  else if (creditCalcRate.toDouble * item.getTransAmt > creditMaxAmt.toDouble) item.setExchange(creditMaxAmt.toDouble)
-                  else item.setExchange(creditCalcRate.toDouble * item.getTransAmt)
+                  if (creditCalcRate.toDouble * item.getTxnAmt < creditMinAmt.toDouble) item.setExchange(creditMinAmt.toDouble)
+                  else if (creditCalcRate.toDouble * item.getTxnAmt > creditMaxAmt.toDouble) item.setExchange(creditMaxAmt.toDouble)
+                  else item.setExchange(creditCalcRate.toDouble * item.getTxnAmt)
                 }
 
               }
@@ -224,7 +212,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
                 item.setExchange(0)
               }
             }
-            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+            sumMapAccum += Map(item.getMerId.toString -> (item.getTxnAmt - item.getExchange))
             item
         }.toList
         newPartition.iterator
@@ -236,7 +224,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     }
     //sumMapAccum.toString()
-    incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
+    result.saveAsObjectFiles("ums_poc", ".obj")
 
     streamContext.start()
     streamContext.awaitTermination()
@@ -246,3 +234,4 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
 
   //def extendProperty(propertyValueMatched:String, propertyNameMatched:String, extendProperties:List[String], targetCacheRDD:IgniteRDD[])
 }
+

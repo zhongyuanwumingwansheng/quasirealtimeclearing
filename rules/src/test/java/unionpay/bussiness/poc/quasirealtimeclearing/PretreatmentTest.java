@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class PretreatmentTest {
 
-    private KieServices ks = null;
+/*    private KieServices ks = null;
     private KieContainer kContainer = null;
     private KieSession kSession = null;
 
@@ -52,11 +52,11 @@ public class PretreatmentTest {
 
     @Test
     public void testUlinknormalFilter() {
-        UlinkNormal un1 = new UlinkNormal("03", "00", "1", "", 0, 0);
-        UlinkNormal un2 = new UlinkNormal("01", "XY", "1", "", 0, 0);
-        UlinkNormal un3 = new UlinkNormal("02", "00", "4", "", 0, 0);
-        UlinkNormal un4 = new UlinkNormal("01", "10", "3", "", 0, 0);
-        UlinkNormal un5 = new UlinkNormal("02", "Y1", "2", "", 0, 0);
+        UlinkNormal un1 = new UlinkNormal("03", "00", "1", "", "","",0, 0);
+        UlinkNormal un2 = new UlinkNormal("01", "XY", "1", "", "","",0, 0);
+        UlinkNormal un3 = new UlinkNormal("02", "00", "4", "", "","",0, 0);
+        UlinkNormal un4 = new UlinkNormal("01", "10", "3", "", "","",0, 0);
+        UlinkNormal un5 = new UlinkNormal("02", "Y1", "2", "", "","",0, 0);
         kSession.insert(un1);
         kSession.insert(un2);
         kSession.insert(un3);
@@ -68,11 +68,11 @@ public class PretreatmentTest {
         assert (reserved == 2l);
     }
 
-/*    @Test
+*//*    @Test
     public void tempTest() {
         UlinkNormal un = new UlinkNormal("02", "Y1", "2", "");
         System.out.println(un.getClearingFlag());
-*//*        List<String> list= new ArrayList<String>(){{
+*//**//*        List<String> list= new ArrayList<String>(){{
             add("2");
             add("3");
             add("4");
@@ -81,14 +81,14 @@ public class PretreatmentTest {
         }};
         kSession.setGlobal("list", list);
         kSession.insert(un);
-        kSession.fireAllRules();*//*
+        kSession.fireAllRules();*//**//*
 
-    }*/
+    }*//*
 
     @After
     public void deposeKie() {
         ks = null;
         kContainer = null;
         kSession = null;
-    }
+    }*/
 }

@@ -1,4 +1,4 @@
-package com.ums;
+package unionpay.bussiness.poc.quasirealtimeclearing;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

@@ -59,6 +59,7 @@ public class GetUlinkData {
 
     public void produceEachTopic(String topic, String fileName){
         //从文件读取，假设一行是一笔交易，这种假设也与需求相符
+        //TODO, 包含海量数据的大文件的处理
         FileInputStream file = null;
         BufferedReader reader = null;
         InputStreamReader inputFileReader = null;
