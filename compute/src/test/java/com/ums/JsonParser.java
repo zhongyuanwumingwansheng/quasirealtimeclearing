@@ -19,7 +19,10 @@ public class JsonParser {
                 "TRANS_ST",
                 "PROD_STYLE",
                 1,
-                "MCHNT_ID_PAY");
+                "MCHNT_ID_PAY",
+                false,
+                0,
+                0);
         JSONObject jo = new JSONObject(ulink);
         System.out.println(jo.toString());
         JSONObject jo2 = new JSONObject(jo.toString());

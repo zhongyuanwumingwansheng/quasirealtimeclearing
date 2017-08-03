@@ -35,6 +35,10 @@ public class Ulink {
      * 流水时间
      */
     private Date uTime;
+    /**
+     * 无商户档案标志, false 表示有商户档案
+     */
+    private boolean noBmsStlInfo;
 
     public int getDcFlag() {
         return dcFlag;
@@ -59,6 +63,10 @@ public class Ulink {
     public Date getuTime() {
         return uTime;
     }
+
+    public boolean getNoBmsStlInfo() {return noBmsStlInfo; }
+
+    public void setNoBmsStlInfo(boolean noBmsStlInfo) {this.noBmsStlInfo = noBmsStlInfo; }
 
     public void setDcFlag(int dcFlag) {
         this.dcFlag = dcFlag;
@@ -91,6 +99,7 @@ public class Ulink {
         this.groupId = ValueDefault.STRING_DEFAULT;
         this.merNo = ValueDefault.STRING_DEFAULT;
         this.uTime = new Date();
+        this.noBmsStlInfo = ValueDefault.BOOLEAN_DEFAULT;
     }
 
     public Ulink(int dcFlag, String clearingFlag, int merId, String groupId, String merNo, Date uTime) {
