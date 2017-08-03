@@ -1,4 +1,5 @@
-package com.ums
+package unionpay.bussiness.poc.quasirealtimeclearing
+
 import org.apache.spark.AccumulatorParam
 
 import scala.collection.mutable.Map

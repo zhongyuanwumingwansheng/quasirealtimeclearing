@@ -1,30 +1,19 @@
-package com.ums
+package unionpay.bussiness.poc.quasirealtimeclearing
 
 import java.util.Properties
 
-import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.api.java.StorageLevels
 import com.typesafe.config._
-import org.apache.spark.{Logging, SparkConf, SparkContext}
-import org.apache.spark.streaming.{Milliseconds, StreamingContext}
-import org.apache.ignite.spark.{IgniteContext, IgniteRDD}
-import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.sql.SQLContext
-import org.kie.api.KieServices
-import kafka.producer.ProducerConfig
-import org.kie.api.runtime.StatelessKieSession
-import kafka.producer.KeyedMessage
 import kafka.javaapi.producer.Producer
-import org.kie.api.builder.KieBuilder
-import org.kie.api.builder.KieScanner
-import org.kie.api.builder.ReleaseId
-import org.kie.api.runtime.KieContainer
-import org.kie.api.runtime.KieSession
-import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkIncre, UlinkNormal}
-import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka, HbaseUtilCp}
+import kafka.producer.ProducerConfig
+import org.apache.spark.api.java.StorageLevels
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.{Milliseconds, StreamingContext}
+import org.apache.spark.{Logging, SparkConf}
 import org.json._
+import org.kie.api.KieServices
+import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkIncre
 //import com.ums.HashMapAccumalatorParam
-import org.apache.spark.AccumulatorParam
 import scala.collection.mutable.Map
 //import org.json4s._
 //import org.json4s.native.JsonMethods._
