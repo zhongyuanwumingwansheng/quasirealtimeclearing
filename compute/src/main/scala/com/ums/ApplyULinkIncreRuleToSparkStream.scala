@@ -20,7 +20,7 @@ import org.kie.api.builder.ReleaseId
 import org.kie.api.runtime.KieContainer
 import org.kie.api.runtime.KieSession
 import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkIncre, UlinkNormal}
-import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka}
+//import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka}
 import org.json._
 //import org.json4s._
 //import org.json4s.native.JsonMethods._
