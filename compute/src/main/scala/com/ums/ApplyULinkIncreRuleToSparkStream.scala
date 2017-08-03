@@ -21,7 +21,7 @@ import org.kie.api.builder.ReleaseId
 import org.kie.api.runtime.KieContainer
 import org.kie.api.runtime.KieSession
 import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkIncre, UlinkNormal}
-import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka}
+import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka, HbaseUtilCp}
 import org.json._
 import com.ums.HashMapAccumalatorParam
 import org.apache.spark.AccumulatorParam
@@ -93,6 +93,11 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val kafkaProducer = new Producer[String, String](config)
     val sendToKafkaInc:SendMessage = new SendToKafka(kafkaProducer, "ulink_incremental")
     //val sendToKafkaTra:SendMessage = new SendToKafka(kafkaProducer, "ulink_traditional")
+
+    //hbase initialization
+    val hbaseUtils = HbaseUtilCp("localhost:2128")
+    val summaryName = "summary"
+    hbaseUtils.createTable(summaryName)
 
     //apply drools rules to each item in rdd
     val ks = KieServices.Factory.get()
@@ -212,7 +217,12 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
         newPartition.iterator
       }
     }
-    sumMapAccum.toString()
+    //保存汇总信息到HBase
+    val columnName = "sum"
+    for ((k, v) <- sumMapAccum.value){
+      hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+    }
+    //sumMapAccum.toString()
     result.saveAsObjectFiles("ums_poc", ".obj")
 
     streamContext.start()
