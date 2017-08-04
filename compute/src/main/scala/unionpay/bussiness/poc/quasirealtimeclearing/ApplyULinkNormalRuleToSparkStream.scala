@@ -172,11 +172,11 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
             //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
             val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("MID"))
             itemAfterParsing.setGroupId(groupId)
-            //TODO
+            //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 MID+ TID，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryProperty("?", "?", "?")
+            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MID")+JItem.getString("TID"))
             itemAfterParsing.setMerNo(merNo)
-            val merId = sysMapItemDF.queryProperty("?", "?", "?")
+            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo)
             itemAfterParsing.setMerId(merId.toInt)
             //查看交易金额
             itemAfterParsing.setTxnAmt(JItem.getDouble("TRANS_AMT"))
