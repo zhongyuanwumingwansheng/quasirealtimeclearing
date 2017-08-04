@@ -6,15 +6,22 @@ import org.apache.spark.sql.{DataFrame, SQLContext}
   */
 
 trait QueryRelatedProperty{
-  def queryProperty(targetCol:String, sourceColName:String, sourceColValue:String):String
+  def queryProperty(targetCol:String, sourceColName:String, sourceColValue:String, operator:String):String
 }
 
 class QueryRelatedPropertyInDF(sqlContext: SQLContext,tableName:String) extends QueryRelatedProperty{
   private lazy val df = sqlContext.load(tableName)
-  override def queryProperty(targetCol: String, sourceColName: String, sourceColValue:String): String = {
-    val value = df.where(s"$sourceColName = $sourceColValue").select(targetCol).first()
+  override def queryProperty(targetCol: String, sourceColName: String, sourceColValue:String, operator:String): String = {
+    val value = df.where(s"$sourceColName $operator $sourceColValue").select(targetCol).first()
     value.toString
   }
+
+  def queryMerNoByUNormalSpeci(targetCol: String, sourceColName1: String, sourceColValue1:String, operator1:String,
+                               sourceColName2: String, sourceColValue2:String, operator2:String): String = {
+    val value = df.where(s"$sourceColName1 $operator1 $sourceColValue1 and $sourceColName2 $operator2 $sourceColValue2").select(targetCol).first()
+    value.toString
+  }
+
   def queryPropertyInBMS_STL_INFODF(targetCol: String, sourceColName: String, sourceColValue:String): Option[String] = {
     val df2 = df.where(s"$sourceColName = $sourceColValue")
     if (df2.count() != 0){

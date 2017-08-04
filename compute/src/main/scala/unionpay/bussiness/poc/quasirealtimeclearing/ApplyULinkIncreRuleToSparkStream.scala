@@ -180,19 +180,24 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
             //parsing
             //query properties
             //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的是否纳入清算
-            val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
+            val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
             itemAfterParsing.setClearingFlag(settleFlag)
             //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的借贷
-            val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
+            val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
             itemAfterParsing.setDcFlag(dcFlag.toInt)
             //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
-            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("Mchnt_Id_Pay"))
+            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("Mchnt_Id_Pay"), "=")
             itemAfterParsing.setGroupId(groupId)
             //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"))
+            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=")
+            //TODO,两种获取商户编号的方法，什么时候用哪种如何判断
+/*            if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
+              val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("RSVD1").substring(50, 57), "=")
+            }*/
+
             itemAfterParsing.setMerNo(merNo)
-            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo)
+            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
             itemAfterParsing.setMerId(merId.toInt)
             //查看交易金额
             itemAfterParsing.setTransAmt(JItem.getDouble("TRANS_AMT"))

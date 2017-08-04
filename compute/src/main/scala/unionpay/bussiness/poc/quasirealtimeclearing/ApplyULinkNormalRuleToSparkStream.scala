@@ -164,19 +164,25 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
             //根据MSG_TYPE[1,2]|PROC_CODE[0,1]| SER_CONCODE这3个字段，
             // 与SYS_TXN_CODE_INFO表中txn_key 字段的中第一个字段的
             //2-3,第二个0-1,第三个匹配,判断是否纳入清算
-            val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
+            val txnKey=s"%${JItem.getString("TMSG_TYPE").substring(1,3)}%${JItem.getString("PROC_CODE").substring(0,2)}%${JItem.getString("SER_CONCODE")}%"
+            val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", txnKey, "like")
             itemAfterParsing.setClearingFlag(settleFlag)
             //同上,去SYS_TXN_CODE_INFO表中找到相应的借贷
-            val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"))
+            val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
             itemAfterParsing.setDcFlag(dcFlag.toInt)
             //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
-            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("MID"))
+            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("MID"), "=")
             itemAfterParsing.setGroupId(groupId)
             //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 MID+ TID，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MID")+JItem.getString("TID"))
+            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MID")+JItem.getString("TID"), "=")
             itemAfterParsing.setMerNo(merNo)
-            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo)
+            //TODO,两种获取商户编号的方法，什么时候用哪种如何判断
+/*            if (groupId.equals("APL")){
+                val merNo = sysMapItemDF.queryMerNoByUNormalSpeci("?", "src_item", JItem.getString("MID")+JItem.getString("RSV4").substring(24, 44), "=",
+                  "map_id", "6049", "=")
+            }*/
+            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
             itemAfterParsing.setMerId(merId.toInt)
             //查看交易金额
             itemAfterParsing.setTxnAmt(JItem.getDouble("TRANS_AMT"))
