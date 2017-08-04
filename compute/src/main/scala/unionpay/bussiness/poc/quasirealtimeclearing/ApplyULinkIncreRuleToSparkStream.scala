@@ -190,10 +190,10 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
             itemAfterParsing.setGroupId(groupId)
             //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=")
+            val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
             //TODO,两种获取商户编号的方法，什么时候用哪种如何判断
 /*            if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
-              val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("RSVD1").substring(50, 57), "=")
+              val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
             }*/
 
             itemAfterParsing.setMerNo(merNo)

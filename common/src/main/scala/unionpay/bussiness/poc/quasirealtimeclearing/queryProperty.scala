@@ -22,6 +22,11 @@ class QueryRelatedPropertyInDF(sqlContext: SQLContext,tableName:String) extends 
     value.toString
   }
 
+  def queryMerNo(targetCol: String, sourceColName: String, sourceColValue:String, operator:String, typeValue: int):String={
+    val value = df.where(s"$sourceColName $operator $sourceColValue and type_id = ${typeValue.toString}").select(targetCol).first()
+    value.toString
+  }
+
   def queryPropertyInBMS_STL_INFODF(targetCol: String, sourceColName: String, sourceColValue:String): Option[String] = {
     val df2 = df.where(s"$sourceColName = $sourceColValue")
     if (df2.count() != 0){

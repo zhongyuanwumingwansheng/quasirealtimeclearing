@@ -175,12 +175,11 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
             itemAfterParsing.setGroupId(groupId)
             //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 MID+ TID，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryProperty("?", "src_item", JItem.getString("MID")+JItem.getString("TID"), "=")
+            val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("MID")+JItem.getString("TID"), "=", 1)
             itemAfterParsing.setMerNo(merNo)
             //TODO,两种获取商户编号的方法，什么时候用哪种如何判断
 /*            if (groupId.equals("APL")){
-                val merNo = sysMapItemDF.queryMerNoByUNormalSpeci("?", "src_item", JItem.getString("MID")+JItem.getString("RSV4").substring(24, 44), "=",
-                  "map_id", "6049", "=")
+                val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("MID")+JItem.getString("RSV4").substring(24, 44), "=", 1082)
             }*/
             val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
             itemAfterParsing.setMerId(merId.toInt)
@@ -230,7 +229,7 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
       hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     }
     //sumMapAccum.toString()
-    result.saveAsObjectFiles("ums_poc", ".obj")
+    result.saveAsObjectFiles("ums_poc", ".obj")c
 
     streamContext.start()
     streamContext.awaitTermination()
