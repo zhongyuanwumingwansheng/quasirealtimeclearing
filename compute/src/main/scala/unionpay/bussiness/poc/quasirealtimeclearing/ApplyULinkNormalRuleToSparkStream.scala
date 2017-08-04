@@ -53,7 +53,7 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
     val sc = streamContext.sparkContext
 
     //初始化一个用于汇总的累加器
-    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam[Map[String, Double]])
+    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
     val sqlContext = new SQLContext(sc)
     //val topicMapUlinkIncremental = {}
     //val topicMapULinkTraditional = {}

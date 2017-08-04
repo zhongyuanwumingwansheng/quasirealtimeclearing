@@ -13,6 +13,7 @@ import java.io.IOException;
 
 public class HbaseUtil{
     public static void main(String[] args){
+        /*
         try{
             Configuration conf = HBaseConfiguration.create();
             HTable table = new HTable(conf, "testteable");
@@ -23,6 +24,7 @@ public class HbaseUtil{
         }catch(Exception e){
             e.printStackTrace();
         }
+        */
 
     }
 
