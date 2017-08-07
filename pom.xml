@@ -4,46 +4,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>unionpay.bussiness.poc</groupId>
-    <artifactId>quasirealtimeclearing</artifactId>
-    <packaging>pom</packaging>
+    <groupId>com.ums.realtime</groupId>
+    <artifactId>realtimeClassify</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>compute</module>
-        <module>summary</module>
-        <module>pretreatment</module>
-        <module>common</module>
-        <module>rules</module>
-        <module>model</module>
-    </modules>
+    <repositories>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
         <jdk.version>1.8</jdk.version>
-        <custom.version>1.0.1</custom.version>
         <slf4j-log4j.version>1.7.6</slf4j-log4j.version>
-        <logback.version>1.1.1</logback.version>
         <junit.version>4.11</junit.version>
-        <tomcat.version>7.0.42</tomcat.version>
-        <hbase.version>2.0.0-alpha-1</hbase.version>
-        <!--<hbase.version>1.2.0-cdh5.7.0</hbase.version>-->
-        <scala.version>2.11.8</scala.version>
-        <hadoop.version>2.6.0-cdh5.7.0</hadoop.version>
-        <jackson.version>2.2.3</jackson.version>
-        <redis.version>2.7.0</redis.version>
-        <quartz.version>2.1.7</quartz.version>
-        <zookeeper.version>3.4.5-cdh5.7.0</zookeeper.version>
-        <httpclient.version>4.3</httpclient.version>
-        <spark.version>1.6.2</spark.version>
+        <hbase.version>1.2.0-cdh5.11.1</hbase.version>
+        <scala.version>2.10.6</scala.version>
+        <hadoop.version>2.6.0-cdh5.11.1</hadoop.version>
+        <zookeeper.version>3.4.5-cdh5.11.1</zookeeper.version>
+        <spark.version>1.6.0-cdh5.11.1</spark.version>
         <ignite.version>2.0.0</ignite.version>
         <drools.version>6.4.0.Final</drools.version>
-        <spring.version>4.0.0.RELEASE</spring.version>
-        <mybatis.version>3.2.6</mybatis.version>
-        <slf4j.version>1.7.7</slf4j.version>
-        <log4j.version>1.2.17</log4j.version>
-        <kafka.version>0.11.0.0</kafka.version>
-        <ignite.version>2.0.0</ignite.version>
-        <junit.version>4.10</junit.version>
+        <kafka.version>2.10-0.10.0</kafka.version>
         <!--make cross scala and java-->
         <scala.maven.plugin.version>3.2.1</scala.maven.plugin.version>
         <!--make running test in mvn test-->
@@ -51,48 +35,108 @@
         <!--make multi src folder-->
         <build.helper.maven.plugin.version>1.9.1</build.helper.maven.plugin.version>
     </properties>
+
     <dependencies>
+        <!--Spark Dependency -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.10</artifactId>
+            <version>${spark.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.10</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_2.10</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-kafka_2.10</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.json4s</groupId>-->
+            <!--<artifactId>json4s-native_2.10</artifactId>-->
+            <!--<version>3.2.10</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--<artifactId>jackson-databind</artifactId>-->
+            <!--<version>2.4.4</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--<artifactId>jackson-annotations</artifactId>-->
+            <!--<version>2.7.0</version>-->
+        <!--</dependency>-->
+
+        <!--Kafka Dependency -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>0.11.0.0</version>
+            <artifactId>kafka_2.10</artifactId>
+            <version>0.8.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!--Hbase Depencency -->
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
-            <version>0.11.0.0</version>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.12</artifactId>
-            <version>0.11.0.0</version>
-        </dependency>
+
+        <!-- Drools Dependency -->
         <dependency>
             <groupId>org.kie</groupId>
             <artifactId>kie-api</artifactId>
             <version>${drools.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.drools</groupId>
             <artifactId>drools-compiler</artifactId>
             <version>${drools.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.drools</groupId>
             <artifactId>drools-core</artifactId>
             <version>${drools.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-core</artifactId>
-            <version>2.0.0</version>
-        </dependency>
+
+        <!--Scala Dependency-->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -108,53 +152,50 @@
             <artifactId>scala-reflect</artifactId>
             <version>${scala.version}</version>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-    </dependencies>
-    <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <testSourceDirectory>src/test/java</testSourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>${scala.maven.plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
-                <configuration>
-                    <skipTests>false</skipTests>
-                    <includes>
-                        <include>*Test.*</include>
-                    </includes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build.helper.maven.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/main/scala</source>
-                                <source>src/test/scala</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
+
+    </dependencies>
+
+        <build>
+            <sourceDirectory>src/main/java</sourceDirectory>
+            <testSourceDirectory>src/test/java</testSourceDirectory>
+            <plugins>
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <version>${scala.maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                    <configuration>
+                        <skipTests>false</skipTests>
+                        <includes>
+                            <include>*Test.*</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${build.helper.maven.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>add-source</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                            <configuration>
+                                <sources>
+                                    <source>src/main/scala</source>
+                                    <source>src/test/scala</source>
+                                </sources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+    </build>
 </project>
