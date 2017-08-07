@@ -22,7 +22,7 @@ class QueryRelatedPropertyInDF(sqlContext: SQLContext,tableName:String) extends 
     value.toString
   }
 
-  def queryMerNo(targetCol: String, sourceColName: String, sourceColValue:String, operator:String, typeValue: int):String={
+  def queryMerNo(targetCol: String, sourceColName: String, sourceColValue:String, operator:String, typeValue: Int):String={
     val value = df.where(s"$sourceColName $operator $sourceColValue and type_id = ${typeValue.toString}").select(targetCol).first()
     value.toString
   }

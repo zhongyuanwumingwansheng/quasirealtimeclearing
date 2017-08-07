@@ -17,12 +17,9 @@ import org.kie.api.builder.ReleaseId
 import org.kie.api.runtime.KieContainer
 import org.kie.api.runtime.KieSession
 import unionpay.bussiness.poc.quasirealtimeclearing.flow.{UlinkNormal}
-import unionpay.bussiness.poc.quasirealtimeclearing.{QueryRelatedPropertyInDF, SendMessage, SendToKafka, HbaseUtilCp}
 import org.json._
 import org.kie.api.KieServices
 import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkIncre
-import unionpay.bussiness.poc.quasirealtimeclearing.HbaseUtilCp
-import unionpay.bussiness.poc.quasirealtimeclearing.{HashMapAccumalatorParam, QueryRelatedPropertyInDF, SendToKafka, SendMessage}
 //import com.ums.HashMapAccumalatorParam
 import scala.collection.mutable.Map
 //import org.json4s._
@@ -229,7 +226,7 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
       hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     }
     //sumMapAccum.toString()
-    result.saveAsObjectFiles("ums_poc", ".obj")c
+    result.saveAsObjectFiles("ums_poc", ".obj")
 
     streamContext.start()
     streamContext.awaitTermination()
