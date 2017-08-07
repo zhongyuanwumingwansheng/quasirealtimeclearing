@@ -174,14 +174,33 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
             itemAfterParsing.setGroupId(groupId)
             //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 MID+ TID，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("MID")+JItem.getString("TID"), "=", 1)
+            val merNo: String ={
+              val merNoByTer = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MID")+JItem.getString("TID"), "=", 1)
+              val merNoByUlink = if (groupId.equals("APL")){
+                sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MID")+JItem.getString("RSV4").substring(24, 44), "=", 1082)
+              }else{
+                ""
+              }
+              val merNoByQuery=if (merNoByUlink.equals("")){
+                merNoByTer
+              }else{
+                merNoByUlink
+              }
+              if(merNoByQuery.equals("")){
+                JItem.getString("MID")
+              }else{
+                merNoByQuery
+              }
+            }
             itemAfterParsing.setMerNo(merNo)
+/*            val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MID")+JItem.getString("TID"), "=", 1)
             //TODO,两种获取商户编号的方法，什么时候用哪种如何判断
-/*            if (groupId.equals("APL")){
-                val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("MID")+JItem.getString("RSV4").substring(24, 44), "=", 1082)
+            if (groupId.equals("APL")){
+                val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MID")+JItem.getString("RSV4").substring(24, 44), "=", 1082)
             }*/
-            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
-            itemAfterParsing.setMerId(merId.toInt)
+          //TODO,do not need merid anymore
+/*            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
+            itemAfterParsing.setMerId(merId.toInt)*/
             //查看交易金额
             itemAfterParsing.setTxnAmt(JItem.getDouble("TRANS_AMT"))
             //val jo = new JSONObject(itemAfterParsing)
@@ -191,7 +210,8 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
         }.filter {   //根据清算标志位判断是否纳入清算
           item =>
             clearFlagList.contains(item.getClearingFlag)
-        }.map {   //计算手续费，按商户id汇总
+        }.map {   //计算手续费
+          // TODO, 按商户编号汇总
           item =>
             val creditMinAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_min_amt", "mer_no", item.getMerNo).getOrElse("-1")
             val creditMaxAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("creditMaxAmt", "mer_no", item.getMerNo).getOrElse("-1")

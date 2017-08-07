@@ -43,6 +43,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
 
     //初始化一个用于汇总的累加器
     //val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
+    //    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
     val sqlContext = new SQLContext(sc)
     //val topicMapUlinkIncremental = {}
     //val topicMapULinkTraditional = {}
@@ -179,15 +180,33 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
             itemAfterParsing.setGroupId(groupId)
             //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
             //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
-            //TODO,两种获取商户编号的方法，什么时候用哪种如何判断
-/*            if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
-              val merNo = sysMapItemDF.queryMerNo("?", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
-            }*/
+            val merNo: String ={
+              val merNoByTer = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
+              val merNoByUlink = if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
+                sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
+              }else{
+                ""
+              }
+              val merNoByQuery=if (merNoByUlink.equals("")){
+                merNoByTer
+              }else{
+                merNoByUlink
+              }
+              if(merNoByQuery.equals("")){
+                JItem.getString("MCHNT_ID_PAY")
+              }else{
+                merNoByQuery
+              }
+            }
+            /*            val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
+                        if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
+                          val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
+                        }*/
 
             itemAfterParsing.setMerNo(merNo)
-            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
-            itemAfterParsing.setMerId(merId.toInt)
+            //TODO,do not need merid anymore
+/*            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
+            itemAfterParsing.setMerId(merId.toInt)*/
             //查看交易金额
             itemAfterParsing.setTransAmt(JItem.getDouble("TRANS_AMT"))
             //val jo = new JSONObject(itemAfterParsing)
@@ -197,7 +216,8 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
         }.filter {   //根据清算标志位判断是否纳入清算
           item =>
             clearFlagList.contains(item.getClearingFlag)
-        }.map {   //计算手续费，按商户id汇总
+        }.map {   //计算手续费，
+          //TODO, 按商户编号汇总
           item =>
             val creditMinAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_min_amt", "mer_no", item.getMerNo).getOrElse("-1")
             val creditMaxAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("creditMaxAmt", "mer_no", item.getMerNo).getOrElse("-1")
@@ -223,6 +243,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
               }
             }
             //sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+            //            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
             item
         }.toList
         newPartition.iterator
@@ -235,6 +256,10 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     }
     */
+    //    val columnName = "sum"
+    //    for ((k, v) <- sumMapAccum.value){
+          hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+    //    }
     //sumMapAccum.toString()
     incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
     //汇总

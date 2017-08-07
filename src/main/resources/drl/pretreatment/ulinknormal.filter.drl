@@ -1,6 +1,6 @@
 package drl.compute;
 
-import unionpay.bussiness.poc.quasirealtimeclearing.flow.UlinkNormal;
+import ums.bussiness.realtime.model.flow.UlinkNormal;
 
 rule "Filter UlinkNormal"
 when
