@@ -222,7 +222,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
                 item.setExchange(0)
               }
             }
-            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+            //sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
             item
         }.toList
         newPartition.iterator
@@ -241,7 +241,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val sum = Map[String, Double]()
     incrementalResult.foreachRDD{
       rdd =>
-        val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
+        val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam[Map[String, Double]])
         rdd.map{
           item =>
             sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
