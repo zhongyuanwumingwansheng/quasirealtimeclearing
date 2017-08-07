@@ -42,7 +42,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val sc = streamContext.sparkContext
 
     //初始化一个用于汇总的累加器
-//    val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
+    //val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
     val sqlContext = new SQLContext(sc)
     //val topicMapUlinkIncremental = {}
     //val topicMapULinkTraditional = {}
@@ -222,19 +222,32 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
                 item.setExchange(0)
               }
             }
-//            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
             item
         }.toList
         newPartition.iterator
       }
     }
     //保存汇总信息到HBase
-//    val columnName = "sum"
-//    for ((k, v) <- sumMapAccum.value){
-//      hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
-//    }
+    /*
+    val columnName = "sum"
+    for ((k, v) <- sumMapAccum.value){
+      hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+    }
+    */
     //sumMapAccum.toString()
     incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
+    //汇总
+    val sum = Map[String, Double]()
+    incrementalResult.foreachRDD{
+      rdd =>
+        val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
+        rdd.map{
+          item =>
+            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+      }
+        sum ++= sumMapAccum.value.map{ case (k, v) => k -> (v + sum.getOrElse(k, 0.toDouble))}
+    }
 
     streamContext.start()
     streamContext.awaitTermination()
