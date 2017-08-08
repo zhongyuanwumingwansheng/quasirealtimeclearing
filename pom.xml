@@ -162,12 +162,13 @@
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>${scala.maven.plugin.version}</version>
                 <configuration>
-                    <archive>
-                        <manifest>
+                    <launchers>
+                        <launcher>
                             <mainClass>ums.bussiness.realtime.ApplyULinkIncreRuleToSparkStream</mainClass>
                             <mainClass>ums.bussiness.realtime.ApplyULinkNormalRuleToSparkStream</mainClass>
-                        </manifest>
-                    </archive>
+                        </launcher>
+                        <!-- you could define other launcher -->
+                    </launchers>
                 </configuration>
 
             </plugin>
