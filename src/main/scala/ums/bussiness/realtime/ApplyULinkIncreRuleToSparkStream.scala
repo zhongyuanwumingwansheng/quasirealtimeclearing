@@ -84,6 +84,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     */
 
     //kafka setting for output
+    /*
     val props: Properties = new Properties()
     props.setProperty("metadata.broker.list", "localhost:2128")
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder")
@@ -93,6 +94,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val kafkaProducer = new Producer[String, String](config)
     val sendToKafkaInc:SendMessage = new SendToKafka(kafkaProducer, "ulink_incremental")
     //val sendToKafkaTra:SendMessage = new SendToKafka(kafkaProducer, "ulink_traditional")
+    */
 
     //hbase initialization
     val hbaseUtils = HbaseUtilCp("localhost:2128")
