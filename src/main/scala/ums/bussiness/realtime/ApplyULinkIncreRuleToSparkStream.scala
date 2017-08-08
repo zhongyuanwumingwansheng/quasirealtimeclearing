@@ -262,6 +262,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     //    val columnName = "sum"
     //    for ((k, v) <- sumMapAccum.value){
           //hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+         hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     //    }
     //sumMapAccum.toString()
     incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
