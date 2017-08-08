@@ -11,7 +11,7 @@ import ums.bussiness.realtime.model.table._
   */
 object ParseTable {
   def parseTable(sc: SparkContext, sqlContext: SQLContext, setting: Config):(DataFrame, DataFrame, DataFrame, DataFrame) = {
-    val BmsStInfoRdd = sc.textFile(setting.getString("BmsStInfo.BmsStInfoLoc")).map(_.split("|")).map {
+    val BmsStInfoRdd = sc.textFile(setting.getString("BmsStInfo.BmsStInfoLoc")).map(_.replace("|||", "").trim.split("|")).map {
       row =>
         new BmsStInfo(row(setting.getInt("BmsStInfo.merIdIndex")),
           row(setting.getInt("BmsStInfo.merNoIndex")),
