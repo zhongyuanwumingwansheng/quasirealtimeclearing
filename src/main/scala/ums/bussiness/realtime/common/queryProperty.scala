@@ -10,8 +10,8 @@ trait QueryRelatedProperty{
   def queryProperty(targetCol:String, sourceColName:String, sourceColValue:String, operator:String):String
 }
 
-class QueryRelatedPropertyInDF(sqlContext: SQLContext,tableName:String) extends QueryRelatedProperty{
-  private lazy val df = sqlContext.load(tableName)
+class QueryRelatedPropertyInDF(sqlContext: SQLContext,df:DataFrame) extends QueryRelatedProperty{
+  //private lazy val df = sqlContext.load(tableName)
   override def queryProperty(targetCol: String, sourceColName: String, sourceColValue:String, operator:String): String = {
     val value = df.where(s"$sourceColName $operator $sourceColValue").select(targetCol).first()
     value.toString

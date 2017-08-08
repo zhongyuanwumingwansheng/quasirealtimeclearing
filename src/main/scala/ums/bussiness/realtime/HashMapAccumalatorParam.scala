@@ -1,7 +1,7 @@
 package ums.bussiness.realtime
 
 import org.apache.spark.AccumulatorParam
-
+import scala.collection.mutable.Map
 /**
   * Created by zhaikaixuan on 03/08/2017.
   */

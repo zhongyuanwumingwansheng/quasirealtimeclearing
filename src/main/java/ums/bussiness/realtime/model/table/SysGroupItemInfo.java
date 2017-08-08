@@ -2,6 +2,8 @@ package ums.bussiness.realtime.model.table;
 
 import ums.bussiness.realtime.common.ValueDefault;
 
+import java.io.Serializable;
+
 /**
  * Created by root on 7/27/17.
  */
@@ -19,7 +21,7 @@ import ums.bussiness.realtime.common.ValueDefault;
         upd_datetime	char(14)			修改记录时间
         upd_user_id	char(10)			修改记录操作员*/
 
-public class SysGroupItemInfo {
+public class SysGroupItemInfo implements Serializable{
     /**
      * 银商机构号
      */

@@ -2,11 +2,13 @@ package ums.bussiness.realtime.model.table;
 
 import ums.bussiness.realtime.common.ValueDefault;
 
+import java.io.Serializable;
+
 /**
  * Created by root on 8/1/17.
  */
 
-public class SysMapItemInfo {
+public class SysMapItemInfo implements Serializable{
     public String getMapId() {
         return mapId;
     }

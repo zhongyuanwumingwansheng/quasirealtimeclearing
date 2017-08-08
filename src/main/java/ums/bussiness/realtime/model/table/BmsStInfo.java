@@ -2,11 +2,13 @@ package ums.bussiness.realtime.model.table;
 
 import ums.bussiness.realtime.common.ValueDefault;
 
+import java.io.Serializable;
+
 /**
  * Created by root on 7/27/17.
  */
 
-public class BmsStInfo {
+public class BmsStInfo implements Serializable{
 
     /**
      * 商户ID

@@ -2,12 +2,14 @@ package ums.bussiness.realtime.model.table;
 
 import ums.bussiness.realtime.common.ValueDefault;
 
+import java.io.Serializable;
+
 /**
  * Created by root on 7/27/17.
  */
 
 
-public class SysTxnCdInfo {
+public class SysTxnCdInfo implements Serializable{
 /*    字段名称	类型	关键字	允许为NULL	说明	备注
     txn_key	varchar(50)	PK	NOT NULL	代码索引	FILE_IMP_INFO.KEY_LIST
     txn_code	char(3)		NOT NULL	交易代码

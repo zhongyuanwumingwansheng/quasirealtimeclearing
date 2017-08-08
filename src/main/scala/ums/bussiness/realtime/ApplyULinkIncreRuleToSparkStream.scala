@@ -9,12 +9,12 @@ import org.apache.spark.api.java.StorageLevels
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Milliseconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf}
+import org.apache.spark.{Logging, SparkConf, SparkContext}
 import org.codehaus.jettison.json.JSONObject
 import org.kie.api.KieServices
-import ums.bussiness.realtime.common.{HbaseUtilCp, QueryRelatedPropertyInDF, SendMessage, SendToKafka}
+import ums.bussiness.realtime.common.{HbaseUtilCp, QueryRelatedPropertyInDF, SendMessage, SendToKafka, ParseTable}
 import ums.bussiness.realtime.model.flow.UlinkIncre
-
+import ums.bussiness.realtime.model.table._
 import scala.collection.mutable.Map
 
 /**
@@ -62,10 +62,11 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val tradLines = streamContext.union(ulinkIncreKafkaStreams)
 
     //导入需要找相应字段的外部表
-    val sysTxnCodeDF = new QueryRelatedPropertyInDF(sqlContext, "SYS_TXN_CODE_INFO table path")
-    val sysGroupItemDF = new QueryRelatedPropertyInDF(sqlContext, "sys group item info table path")
-    val sysMapItemDF = new QueryRelatedPropertyInDF(sqlContext, "sys map item info table path")
-    val bmsStlInfoDF = new QueryRelatedPropertyInDF(sqlContext, "bms stl info table path")
+    val (sysTxnCodeDf, sysGroupItemInfoDf, sysMapItemDf, bmsStlInfoDf) = ParseTable.parseTable(sc, sqlContext, setting)
+    val sysTxnCodeDF = new QueryRelatedPropertyInDF(sqlContext, sysTxnCodeDf)
+    val sysGroupItemDF = new QueryRelatedPropertyInDF(sqlContext, sysGroupItemInfoDf)
+    val sysMapItemDF = new QueryRelatedPropertyInDF(sqlContext, sysMapItemDf)
+    val bmsStlInfoDF = new QueryRelatedPropertyInDF(sqlContext, bmsStlInfoDf)
 
     //val sys_group_item_info_df = sqlContext.read.parquet("table path").select("Mchnt_Id_Pay", "category")
 
@@ -124,129 +125,131 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
       DiscretizedRdd =>
         DiscretizedRdd.foreachPartition{
     */
-    val incrementalResult = increLines.mapPartitions {
-      partition => {
-        val newPartition = partition.filter {
-          //假设输入的数据的每行交易清单是符合以json字符串格式的 string
-          item =>
-            val JItem = new JSONObject(item.toString())
-            val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
-              JItem.getString("PAY_ST"),
-              JItem.getString("TRANS_ST_RSVL"),
-              JItem.getString("ROUT_INST_ID_CD"),
-              JItem.getString("TRANS_ST"),
-              JItem.getString("PROD_STYLE"),
-              JItem.getInt("RSVD6"),
-              JItem.getString("MCHNT_ID_PAY"),
-              JItem.getString("TERM_ID_PAY"),
-              false,
-              0,
-              0)
+    val incrementalResult = increLines.transform{
+      rdd => rdd.mapPartitions {
+        partition => {
+          val newPartition = partition.filter {
+            //假设输入的数据的每行交易清单是符合以json字符串格式的 string
+            item =>
+              val JItem = new JSONObject(item.toString())
+              val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
+                JItem.getString("PAY_ST"),
+                JItem.getString("TRANS_ST_RSVL"),
+                JItem.getString("ROUT_INST_ID_CD"),
+                JItem.getString("TRANS_ST"),
+                JItem.getString("PROD_STYLE"),
+                JItem.getInt("RSVD6"),
+                JItem.getString("MCHNT_ID_PAY"),
+                JItem.getString("TERM_ID_PAY"),
+                false,
+                0,
+                0)
 
-            //var extendedItem = extendProperty(itemAfterParsing)
-            // val cacheRDD = igniteContext.fromCache("sys_group_item_info_rdd")
-            //val result = cacheRDD.sql("select ")
-            //itemAfterParsing
-            //val message = new KeyedMessage[String, String]("topic", "message")
-            //kafkaProducer.send(message) //moved to rules
-            kSession.value.insert(itemAfterParsing)
-            kSession.value.fireAllRules()
-            itemAfterParsing.getFilterFlag
-        }.map {
-          item =>
-            val JItem = new JSONObject(item.toString())
-            val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
-              JItem.getString("PAY_ST"),
-              JItem.getString("TRANS_ST_RSVL"),
-              JItem.getString("ROUT_INST_ID_CD"),
-              JItem.getString("TRANS_ST"),
-              JItem.getString("PROD_STYLE"),
-              JItem.getInt("RSVD6"),
-              JItem.getString("MCHNT_ID_PAY"),
-              JItem.getString("TERM_ID_PAY"),
-              false,
-              0,
-              0)
-            //parsing
-            //query properties
-            //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的是否纳入清算
-            val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
-            itemAfterParsing.setClearingFlag(settleFlag)
-            //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的借贷
-            val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
-            itemAfterParsing.setDcFlag(dcFlag.toInt)
-            //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
-            val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("Mchnt_Id_Pay"), "=")
-            itemAfterParsing.setGroupId(groupId)
-            //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
-            //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
-            val merNo: String ={
-              val merNoByTer = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
-              val merNoByUlink = if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
-                sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
-              }else{
-                ""
-              }
-              val merNoByQuery=if (merNoByUlink.equals("")){
-                merNoByTer
-              }else{
-                merNoByUlink
-              }
-              if(merNoByQuery.equals("")){
-                JItem.getString("MCHNT_ID_PAY")
-              }else{
-                merNoByQuery
-              }
-            }
-            /*            val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
-                        if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
-                          val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
-                        }*/
-
-            itemAfterParsing.setMerNo(merNo)
-            //TODO,do not need merid anymore
-/*            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
-            itemAfterParsing.setMerId(merId.toInt)*/
-            //查看交易金额
-            itemAfterParsing.setTransAmt(JItem.getDouble("TRANS_AMT"))
-            //val jo = new JSONObject(itemAfterParsing)
-            //jo.toString
-            itemAfterParsing
-
-        }.filter {   //根据清算标志位判断是否纳入清算
-          item =>
-            clearFlagList.contains(item.getClearingFlag)
-        }.map {   //计算手续费，
-          //TODO, 按商户编号汇总
-          item =>
-            val creditMinAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_min_amt", "mer_no", item.getMerNo).getOrElse("-1")
-            val creditMaxAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("creditMaxAmt", "mer_no", item.getMerNo).getOrElse("-1")
-            bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_type", "mer_no", item.getMerNo) match {
-              case Some(calType) => {
-                if (calType == "10"){
-                  val creditCalcRate = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_rate", "mer_no", item.getMerNo).getOrElse("-1")
-                  if (creditCalcRate.toDouble * item.getTransAmt < creditMinAmt.toDouble) item.setExchange(creditMinAmt.toDouble)
-                  else if (creditCalcRate.toDouble * item.getTransAmt > creditMaxAmt.toDouble) item.setExchange(creditMaxAmt.toDouble)
-                  else item.setExchange(creditCalcRate.toDouble * item.getTransAmt)
+              //var extendedItem = extendProperty(itemAfterParsing)
+              // val cacheRDD = igniteContext.fromCache("sys_group_item_info_rdd")
+              //val result = cacheRDD.sql("select ")
+              //itemAfterParsing
+              //val message = new KeyedMessage[String, String]("topic", "message")
+              //kafkaProducer.send(message) //moved to rules
+              kSession.value.insert(itemAfterParsing)
+              kSession.value.fireAllRules()
+              itemAfterParsing.getFilterFlag
+          }.map {
+            item =>
+              val JItem = new JSONObject(item.toString())
+              val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
+                JItem.getString("PAY_ST"),
+                JItem.getString("TRANS_ST_RSVL"),
+                JItem.getString("ROUT_INST_ID_CD"),
+                JItem.getString("TRANS_ST"),
+                JItem.getString("PROD_STYLE"),
+                JItem.getInt("RSVD6"),
+                JItem.getString("MCHNT_ID_PAY"),
+                JItem.getString("TERM_ID_PAY"),
+                false,
+                0,
+                0)
+              //parsing
+              //query properties
+              //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的是否纳入清算
+              val settleFlag = sysTxnCodeDF.queryProperty("settleFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
+              itemAfterParsing.setClearingFlag(settleFlag)
+              //根据TRANS_CD_PAY去SYS_TXN_CODE_INFO表中找到相应的借贷
+              val dcFlag = sysTxnCodeDF.queryProperty("dcFlag", "txn_key", JItem.getString("TRANS_CD_PAY"), "=")
+              itemAfterParsing.setDcFlag(dcFlag.toInt)
+              //根据 Mchnt_Id_Pay 字段去 sys_group_item_info 里获取分组信息
+              val groupId = sysGroupItemDF.queryProperty("groupId", "item", JItem.getString("Mchnt_Id_Pay"), "=")
+              itemAfterParsing.setGroupId(groupId)
+              //TODO,sys_map_item_info的表结构,商户编号对应于哪个字段
+              //源字段为 Mchnt_Id_Pay+ Term_Id_Pay，根据源字段去清分映射表 sys_map_item_info 中查找结果字段，并将结果字段作为入账商户编号
+              val merNo: String ={
+                val merNoByTer = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
+                val merNoByUlink = if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
+                  sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
+                }else{
+                  ""
                 }
+                val merNoByQuery=if (merNoByUlink.equals("")){
+                  merNoByTer
+                }else{
+                  merNoByUlink
+                }
+                if(merNoByQuery.equals("")){
+                  JItem.getString("MCHNT_ID_PAY")
+                }else{
+                  merNoByQuery
+                }
+              }
+              /*            val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("MCHNT_ID_PAY")+JItem.getString("TERM_ID_PAY"), "=", 1)
+                          if (JItem.getString("RSVD1").substring(0,3).equals("SML")){
+                            val merNo = sysMapItemDF.queryMerNo("map_result", "src_item", JItem.getString("RSVD1").substring(50, 57), "=", 1068)
+                          }*/
 
+              itemAfterParsing.setMerNo(merNo)
+              //TODO,do not need merid anymore
+              /*            val merId = bmsStlInfoDF.queryProperty("mer_id", "mer_no", merNo, "=")
+                          itemAfterParsing.setMerId(merId.toInt)*/
+              //查看交易金额
+              itemAfterParsing.setTransAmt(JItem.getDouble("TRANS_AMT"))
+              //val jo = new JSONObject(itemAfterParsing)
+              //jo.toString
+              itemAfterParsing
+
+          }.filter {   //根据清算标志位判断是否纳入清算
+            item =>
+              clearFlagList.contains(item.getClearingFlag)
+          }.map {   //计算手续费，
+            //TODO, 按商户编号汇总
+            item =>
+              val creditMinAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_min_amt", "mer_no", item.getMerNo).getOrElse("-1")
+              val creditMaxAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("creditMaxAmt", "mer_no", item.getMerNo).getOrElse("-1")
+              bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_type", "mer_no", item.getMerNo) match {
+                case Some(calType) => {
+                  if (calType == "10"){
+                    val creditCalcRate = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_rate", "mer_no", item.getMerNo).getOrElse("-1")
+                    if (creditCalcRate.toDouble * item.getTransAmt < creditMinAmt.toDouble) item.setExchange(creditMinAmt.toDouble)
+                    else if (creditCalcRate.toDouble * item.getTransAmt > creditMaxAmt.toDouble) item.setExchange(creditMaxAmt.toDouble)
+                    else item.setExchange(creditCalcRate.toDouble * item.getTransAmt)
+                  }
+
+                }
+                case Some("11") => {
+                  val creditCalcAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_amt", "mer_no", item.getMerNo).getOrElse("-1")
+                  if (creditCalcAmt < creditMinAmt) item.setExchange(creditMinAmt.toDouble)
+                  else if (creditCalcAmt > creditMaxAmt) item.setExchange(creditMaxAmt.toDouble)
+                  else item.setExchange(creditCalcAmt.toDouble)
+                }
+                case None => {
+                  item.setNoBmsStlInfo(true)
+                  item.setExchange(0)
+                }
               }
-              case Some("11") => {
-                val creditCalcAmt = bmsStlInfoDF.queryPropertyInBMS_STL_INFODF("credit_calc_amt", "mer_no", item.getMerNo).getOrElse("-1")
-                if (creditCalcAmt < creditMinAmt) item.setExchange(creditMinAmt.toDouble)
-                else if (creditCalcAmt > creditMaxAmt) item.setExchange(creditMaxAmt.toDouble)
-                else item.setExchange(creditCalcAmt.toDouble)
-              }
-              case None => {
-                item.setNoBmsStlInfo(true)
-                item.setExchange(0)
-              }
-            }
-            //sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
-            //            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
-            item
-        }.toList
-        newPartition.iterator
+              //sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+              //            sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
+              item
+          }.toList
+          newPartition.iterator
+        }
       }
     }
     //保存汇总信息到HBase
@@ -258,7 +261,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     */
     //    val columnName = "sum"
     //    for ((k, v) <- sumMapAccum.value){
-          hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+          //hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     //    }
     //sumMapAccum.toString()
     incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
@@ -266,7 +269,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val sum = Map[String, Double]()
     incrementalResult.foreachRDD{
       rdd =>
-        val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam[Map[String, Double]])
+        val sumMapAccum = sc.accumulator(Map[String, Double]())(HashMapAccumalatorParam)
         rdd.map{
           item =>
             sumMapAccum += Map(item.getMerId.toString -> (item.getTransAmt - item.getExchange))
