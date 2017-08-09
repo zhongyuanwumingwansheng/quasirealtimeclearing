@@ -1,7 +1,7 @@
 package ums.bussiness.realtime
 
 import java.util.Properties
-
+import org.kie.api.runtime.KieSessionConfiguration
 import com.typesafe.config._
 import kafka.javaapi.producer.Producer
 import kafka.producer.ProducerConfig
@@ -103,9 +103,11 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     hbaseUtils.createTable(summaryName)
     */
     //无需从远程服务器上pull，rule包直接放置在本地
+    /*
     val ks = KieServices.Factory.get()
     val kieContainer = ks.newKieClasspathContainer()
     val kieSession = kieContainer.newKieSession()
+    */
     //apply drools rules to each item in rdd
     /*
     val ks = KieServices.Factory.get()
@@ -121,7 +123,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
 
     //val queryServiceImp:QueryRelatedProperty = new QueryRelatedPropertyInDF(sys_group_item_info_df)
     //kieSession.setGlobal("queryService", queryServiceImp)
-    val kSession = sc.broadcast(kieSession)
+    //val kSession = sc.broadcast(kieSession)
     val clearFlagList = List("1", "2", "3", "4", "5", "6")
 
     /*
@@ -132,7 +134,9 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val incrementalResult = increLines.transform{
       rdd => rdd.mapPartitions {
         partition => {
-          val newPartition = partition.filter {
+          val newPartition = partition.
+      
+/*filter {
             //假设输入的数据的每行交易清单是符合以json字符串格式的 string
             item =>
               val JItem = new JSONObject(item.toString())
@@ -158,7 +162,8 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
               kSession.value.insert(itemAfterParsing)
               kSession.value.fireAllRules()
               itemAfterParsing.getFilterFlag
-          }.map {
+          }.*/
+map {
             item =>
               val JItem = new JSONObject(item.toString())
               val itemAfterParsing = new UlinkIncre(JItem.getString("TRANS_CD_PAY"),
