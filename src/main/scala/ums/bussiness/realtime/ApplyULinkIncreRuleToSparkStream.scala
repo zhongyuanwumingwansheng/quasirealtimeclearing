@@ -12,7 +12,7 @@ import org.apache.spark.streaming.{Milliseconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
 import org.codehaus.jettison.json.JSONObject
 import org.kie.api.KieServices
-import ums.bussiness.realtime.common.{HbaseUtilCp, QueryRelatedPropertyInDF, SendMessage, SendToKafka, ParseTable}
+import ums.bussiness.realtime.common.{HbaseUtil, QueryRelatedPropertyInDF, SendMessage, SendToKafka, ParseTable}
 import ums.bussiness.realtime.model.flow.UlinkIncre
 import ums.bussiness.realtime.model.table._
 import scala.collection.mutable.Map
@@ -100,6 +100,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     /*
     val hbaseUtils = HbaseUtilCp("172.17.1.146:2128")
     val hbaseUtils = HbaseUtilCp(setting)
+    val hbaseUtils = HbaseUtil(setting)
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
     */

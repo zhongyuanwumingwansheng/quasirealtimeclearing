@@ -34,7 +34,7 @@ public class GetUlinkData {
         //TODO,Hard Code
         topics = new HashMap<String, String>() {
             {
-                put("ULinkNormal", setting.getString("ULinkNormal.path"));
+                //put("ULinkNormal", setting.getString("ULinkNormal.path"));
                 put("ULinkIncre", setting.getString("ULinkIncre.path"));
             }
         };
@@ -75,7 +75,7 @@ public class GetUlinkData {
         String tempString=null;
         try {
             file = new FileInputStream(fileName);
-            inputFileReader = new InputStreamReader(file, "utf-8");
+            inputFileReader = new InputStreamReader(file, setting.getString("coding"));
             reader = new BufferedReader(inputFileReader);
             // 一次读入一行，直到读入null为文件结束
             while ((tempString = reader.readLine()) != null) {
@@ -83,23 +83,34 @@ public class GetUlinkData {
                 result.append("{");
                 long timestamp = System.currentTimeMillis();
                 String key = topic+"_"+String.valueOf(timestamp);
+                //TODO.the data has problem. each line's length of data is not exactly the same
                 if(topic.equals("ULinkIncre")){
-                    String[]values=tempString.replaceAll("  ","!!!!").split("\\s+");
-                    System.out.println(values.length);
-                    //TODO,Hard Code.and the data has problem
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+values[8]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+values[29]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",99))+":"+values[99]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",104))+":"+values[104]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",105))+":"+values[105]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",109))+":"+values[109]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",111))+":"+values[111]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",112))+":"+values[112]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",124))+":"+values[124]+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+values[160]+"}");
+                    //TODO,Hard Code.
+/*                    String v1 = tempString.substring(0,12);
+                    String v2 = tempString.substring(13,21);
+                    String st1 = tempString.substring(210,211);
+                    String st2 = tempString.substring(212,213);
+                    String st3 = tempString.substring(214,215);
+                    String st4 = tempString.substring(216,217);
+                    String st5 = tempString.substring(218,219);
+                    System.out.println(v1+" "+v2+" "+st1+" "+st2+" "+st3+" "+st4+" "+st5);
+                    System.out.println(tempString.length());*/
+                    //break;
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+tempString.substring(212,213)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",10))+":"+tempString.substring(216,217)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+tempString.substring(381,385)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",99))+":"+tempString.substring(1307,1332)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",104))+":"+tempString.substring(1381,1396)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",105))+":"+tempString.substring(1397,1415)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",109))+":"+tempString.substring(1447,1455)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",112))+":"+tempString.substring(1499,1500)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",124))+":"+tempString.substring(1657,1669)+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+tempString.substring(2367,2379)+"}");
+
                 }
-                if(topic.equals("ULinkNormal")){
+/*                if(topic.equals("ULinkNormal")){
                     String[]values=tempString.split("\\|");
+                    //TODO,Hard Code
                     result.append(setting.getString(String.format("ULinkNormal.p%d",4))+":"+values[4]+",");
                     result.append(setting.getString(String.format("ULinkNormal.p%d",5))+":"+values[5]+",");
                     result.append(setting.getString(String.format("ULinkNormal.p%d",7))+":"+values[7]+",");
@@ -108,8 +119,8 @@ public class GetUlinkData {
                     result.append(setting.getString(String.format("ULinkNormal.p%d",34))+":"+values[34]+",");
                     result.append(setting.getString(String.format("ULinkNormal.p%d",42))+":"+values[42]+",");
                     result.append(setting.getString(String.format("ULinkNormal.p%d",61))+":"+values[61]+"}");
-                }
-                //System.out.println(result);
+                    System.out.println(result);
+                }*/
                 //按需求逐笔读取
                 producer.send(new KeyedMessage<String, String>(topic, key, result.toString()));
             }
@@ -137,6 +148,7 @@ public class GetUlinkData {
     }
 
     public static void main(String args[]){
+
         GetUlinkData kafkaProducer = new GetUlinkData();
         kafkaProducer.produce();
 /*        String t1=" 1     2";

@@ -20,7 +20,7 @@ import org.kie.api.runtime.KieSession
 import ums.bussiness.realtime.common.ParseTable
 //import org.json._
 import org.kie.api.KieServices
-import ums.bussiness.realtime.common.{HbaseUtilCp, QueryRelatedPropertyInDF, SendMessage, SendToKafka}
+import ums.bussiness.realtime.common.{HbaseUtil, QueryRelatedPropertyInDF, SendMessage, SendToKafka}
 import ums.bussiness.realtime.model.flow.UlinkNormal
 //import com.ums.HashMapAccumalatorParam
 import scala.collection.mutable.Map
@@ -96,7 +96,7 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
     //val sendToKafkaTra:SendMessage = new SendToKafka(kafkaProducer, "ulink_traditional")
 
     //hbase initialization
-    val hbaseUtils = HbaseUtilCp(setting)
+    val hbaseUtils = HbaseUtil(setting)
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
 
