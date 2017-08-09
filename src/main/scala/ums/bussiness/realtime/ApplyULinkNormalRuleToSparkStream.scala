@@ -96,7 +96,7 @@ object ApplyULinkNormalRuleToSparkStream extends Logging{
     //val sendToKafkaTra:SendMessage = new SendToKafka(kafkaProducer, "ulink_traditional")
 
     //hbase initialization
-    val hbaseUtils = HbaseUtilCp("localhost:2128")
+    val hbaseUtils = HbaseUtilCp(setting)
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
 

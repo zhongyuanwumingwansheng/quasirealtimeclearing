@@ -10,7 +10,7 @@ when
 
 then
     modify($ui){
-        setFilterFlag(Boolean.True)
+        setFilterFlag(true)
     }
     //delete($ui);
 end

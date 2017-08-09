@@ -10,5 +10,8 @@ when
     && getRespCode() != "Y1" && getRespCode() != "Y3"||
     getTranStat() != "1" && getTranStat() == "2" && getTranStat() != "3")
 then
-    delete($un);
+    modify($un){
+       setFilterFlag(true)
+    }
+    //delete($un);
 end

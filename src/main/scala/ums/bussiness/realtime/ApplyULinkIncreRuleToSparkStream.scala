@@ -99,6 +99,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     //hbase initialization
     /*
     val hbaseUtils = HbaseUtilCp("172.17.1.146:2128")
+    val hbaseUtils = HbaseUtilCp(setting)
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
     */
@@ -272,6 +273,8 @@ map {
     //    for ((k, v) <- sumMapAccum.value){
           //hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
         // hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+         //hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+
     //    }
     //sumMapAccum.toString()
     incrementalResult.saveAsObjectFiles("ums_poc", ".obj")

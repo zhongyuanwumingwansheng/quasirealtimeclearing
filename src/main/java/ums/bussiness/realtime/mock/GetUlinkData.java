@@ -42,7 +42,7 @@ public class GetUlinkData {
         Properties props = new Properties();
         //此处配置的是kafka的端口
         //TODO,Hard Code
-        props.put("metadata.broker.list", "172.17.1.145:9092");
+        props.put("metadata.broker.list", setting.getString("kafkaHost"));
 
         //配置value的序列化类
         props.put("serializer.class", "kafka.serializer.StringEncoder");
