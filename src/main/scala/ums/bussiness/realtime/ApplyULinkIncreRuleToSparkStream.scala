@@ -97,9 +97,11 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     */
 
     //hbase initialization
-    val hbaseUtils = HbaseUtilCp("localhost:2128")
+    /*
+    val hbaseUtils = HbaseUtilCp("172.17.1.146:2128")
     val summaryName = "summary"
     hbaseUtils.createTable(summaryName)
+    */
     //无需从远程服务器上pull，rule包直接放置在本地
     val ks = KieServices.Factory.get()
     val kieContainer = ks.newKieClasspathContainer()
@@ -264,7 +266,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     //    val columnName = "sum"
     //    for ((k, v) <- sumMapAccum.value){
           //hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
-         hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
+        // hbaseUtils.writeTable(summaryName, k, columnName, v.toString)
     //    }
     //sumMapAccum.toString()
     incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
