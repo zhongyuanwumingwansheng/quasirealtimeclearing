@@ -34,7 +34,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     val kafkaReceiverNum = setting.getInt("kafkaReceiverNum")
     val kafkaGroup = setting.getString("kafkaGroup")
     val kafkaThread = setting.getInt("kafkaThread")
-    val conf = new SparkConf().setMaster("local").setAppName(appName)
+    val conf = new SparkConf().setMaster("yarn-client").setAppName(appName)
     //val sc = new SparkContext(conf)
     //val sqlContext = new SQLContext(conf)
     val streamContext = new StreamingContext(conf, Milliseconds(processInterval))
@@ -49,18 +49,19 @@ object ApplyULinkIncreRuleToSparkStream extends Logging{
     //val topicMapULinkTraditional = {}
     //val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
     //ulink增量对应的topic数据读入
-    val ulinkIncreTopicMap = scala.collection.immutable.Map("ulink_incremental" -> 1)
+    val ulinkIncreTopicMap = scala.collection.immutable.Map("ULinkIncre" -> 1)
     val ulinkIncreKafkaStreams = (1 to kafkaReceiverNum).map { _ =>
       KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkIncreTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
     }
     val increLines = streamContext.union(ulinkIncreKafkaStreams)
     //ulink传统对应的topic数据读入
+    /*
     val ulinkTraTopicMap = scala.collection.immutable.Map("ulink_incremental" -> 1)
     val ulinkTraKafkaStreams = (1 to kafkaReceiverNum).map { _ =>
       KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkIncreTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
     }
     val tradLines = streamContext.union(ulinkIncreKafkaStreams)
-
+    */
     //导入需要找相应字段的外部表
     val (sysTxnCodeDf, sysGroupItemInfoDf, sysMapItemDf, bmsStlInfoDf) = ParseTable.parseTable(sc, sqlContext, setting)
     val sysTxnCodeDF = new QueryRelatedPropertyInDF(sqlContext, sysTxnCodeDf)
