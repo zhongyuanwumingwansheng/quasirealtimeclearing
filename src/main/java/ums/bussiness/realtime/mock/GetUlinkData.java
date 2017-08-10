@@ -34,7 +34,7 @@ public class GetUlinkData {
         //TODO,Hard Code
         topics = new HashMap<String, String>() {
             {
-                //put("ULinkNormal", setting.getString("ULinkNormal.path"));
+                put("ULinkNormal", setting.getString("ULinkNormal.path"));
                 put("ULinkIncre", setting.getString("ULinkIncre.path"));
             }
         };
@@ -86,16 +86,6 @@ public class GetUlinkData {
                 //TODO.the data has problem. each line's length of data is not exactly the same
                 if(topic.equals("ULinkIncre")){
                     //TODO,Hard Code.
-/*                    String v1 = tempString.substring(0,12);
-                    String v2 = tempString.substring(13,21);
-                    String st1 = tempString.substring(210,211);
-                    String st2 = tempString.substring(212,213);
-                    String st3 = tempString.substring(214,215);
-                    String st4 = tempString.substring(216,217);
-                    String st5 = tempString.substring(218,219);
-                    System.out.println(v1+" "+v2+" "+st1+" "+st2+" "+st3+" "+st4+" "+st5);
-                    System.out.println(tempString.length());*/
-                    //break;
                     result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+tempString.substring(212,213)+",");
                     result.append(setting.getString(String.format("ULinkIncre.p%d",10))+":"+tempString.substring(216,217)+",");
                     result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+tempString.substring(381,385)+",");
@@ -108,7 +98,7 @@ public class GetUlinkData {
                     result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+tempString.substring(2367,2379)+"}");
 
                 }
-/*                if(topic.equals("ULinkNormal")){
+                if(topic.equals("ULinkNormal")){
                     String[]values=tempString.split("\\|");
                     //TODO,Hard Code
                     result.append(setting.getString(String.format("ULinkNormal.p%d",4))+":"+values[4]+",");
@@ -119,8 +109,7 @@ public class GetUlinkData {
                     result.append(setting.getString(String.format("ULinkNormal.p%d",34))+":"+values[34]+",");
                     result.append(setting.getString(String.format("ULinkNormal.p%d",42))+":"+values[42]+",");
                     result.append(setting.getString(String.format("ULinkNormal.p%d",61))+":"+values[61]+"}");
-                    System.out.println(result);
-                }*/
+                }
                 //按需求逐笔读取
                 producer.send(new KeyedMessage<String, String>(topic, key, result.toString()));
             }
