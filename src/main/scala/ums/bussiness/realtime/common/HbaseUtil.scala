@@ -196,28 +196,6 @@ object HbaseUtil extends Serializable {
   def main(args: Array[String]) {
     val setting:Config = ConfigFactory.load
     val hbaseUtil = HbaseUtil(setting)
-    hbaseUtil.createTable("test")
-    hbaseUtil.writeTable("test", "row1", "column11", "value11")
-    hbaseUtil.writeTable("test", "row1", "column12", "value12")
-    hbaseUtil.writeTable("test", "row2", "column21", "value22")
-    val keyValues:Map[String, Map[String, String]]=Map("row3"->Map("column31"->"value31","column32"->"value32","column33"->"value33"),
-      "row4"->Map("column41"->"value41","column42"->"value42","column43"->"value43","column44"->"value44"))
-    hbaseUtil.writeTable("test", keyValues)
-    hbaseUtil.createTable("test")
-    val columnName="列一"
-    val columnValue="列一value123"
-    hbaseUtil.writeTable("test", "row1", new String(columnName.getBytes), new String(columnValue.getBytes))
-    //hbaseUtil.delRowKey("test",List("row1"))
-    /*    while (true) {
-      val start_time = new Date().getTime
-      //val result_01 = hbaseUtil.selectLatestColumnsByPrefix(TodayHistory.getTableName(TodayHistory.TBL_OJNL_DERIVED_RSLT), "A_0019105829308_2")
-      //      val result_02 = hbaseUtil.selectColumnsByPrefix(TodayHistory.getTableName(TodayHistory.TBL_OJNL_DERIVED_RSLT), "A_0019243452387_2")
-      //      result_01.foreach(println)
-      //      result_02.foreach(println)
-      val end_time = new Date().getTime
-      val interval = end_time - start_time
-      println(interval)
-    }*/
   }
 }
 
