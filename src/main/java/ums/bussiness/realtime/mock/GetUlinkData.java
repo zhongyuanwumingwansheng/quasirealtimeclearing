@@ -75,7 +75,8 @@ public class GetUlinkData {
         String tempString=null;
         try {
             file = new FileInputStream(fileName);
-            inputFileReader = new InputStreamReader(file, setting.getString("coding"));
+            //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
+            inputFileReader = new InputStreamReader(file);
             reader = new BufferedReader(inputFileReader);
             // 一次读入一行，直到读入null为文件结束
             while ((tempString = reader.readLine()) != null) {
@@ -86,17 +87,16 @@ public class GetUlinkData {
                 //TODO.the data has problem. each line's length of data is not exactly the same
                 if(topic.equals("ULinkIncre")){
                     //TODO,Hard Code.
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+tempString.substring(212,213)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",10))+":"+tempString.substring(216,217)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+tempString.substring(381,385)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",99))+":"+tempString.substring(1307,1332)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",104))+":"+tempString.substring(1381,1396)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",105))+":"+tempString.substring(1397,1415)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",109))+":"+tempString.substring(1447,1455)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",112))+":"+tempString.substring(1499,1500)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",124))+":"+tempString.substring(1657,1669)+",");
-                    result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+tempString.substring(2367,2379)+"}");
-
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+new String(tempString.substring(212,213).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",10))+":"+new String(tempString.substring(216,217).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+new String(tempString.substring(381,385).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",99))+":"+new String(tempString.substring(1307,1332).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",104))+":"+new String(tempString.substring(1381,1396).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",105))+":"+new String(tempString.substring(1397,1415).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",109))+":"+new String(tempString.substring(1447,1455).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",112))+":"+new String(tempString.substring(1499,1500).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",124))+":"+new String(tempString.substring(1657,1669).getBytes(), "gbk")+",");
+                    result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+new String(tempString.substring(2367,2379).getBytes(), "gbk")+"}");
                 }
                 if(topic.equals("ULinkNormal")){
                     String[]values=tempString.split("\\|");
@@ -137,9 +137,29 @@ public class GetUlinkData {
     }
 
     public static void main(String args[]){
-
         GetUlinkData kafkaProducer = new GetUlinkData();
         kafkaProducer.produce();
+/*        try{
+            StringBuilder result=new StringBuilder();
+            result.append("{");
+            String tempString="003353529294 20170722 103406 02 02S22154 ASPOS1-23                                                                                            0505072289837085411155403353529294W                              0 0 0 0 0 N 20170722103506 30 48020000    4348029999                01 603000320108                                                     08 0 05   05   05   05   5 51 A2 51A2 S22 02 A AS22 X080 600027DF9C D + N N                    0200                             0000   0002 134694059395582767                       00 BK                                  00 7  FFFFFF         99    99 190000 1550         0722103407 000863 103407 20170722 20170722 920     82    0            03353529294W             0000 11                                                             48024500    100100      1                    2989513c7bba4320921cfa3cccafae28                 a1276a9dc63044f3bf385208ba975bb1 5411 898370854111554 4610 ****************************************                                                                                            2c90ef045893ad330158a032d9ce0944                 88396449                                     156 000001       00 0                                                                                                    1  000000 48020000    0 3748020000                48024500    48024500                1000000014  898370854111554 88396449           5411 000001       000863       02S221X1 11111111111                    0 0 0 0 ULINK    0000 20170722 20170722 103407                                  4008612001201707222034700308                                      1550         1550         0            -1                                                                                                                                                                           20170722 20170722                                                                                                                        0            0                                                                                                                  1550                                              4                                                                                                                                                                                                    1001         -1           2017-07-22-10:34:06.800602 2017-07-22-10:34:08.306852 POS3                                                                                                                                                                                                                                                                                                        20170722103406003353529294";
+            result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+new String(tempString.substring(212,213).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",10))+":"+new String(tempString.substring(216,217).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+new String(tempString.substring(381,385).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",99))+":"+new String(tempString.substring(1307,1332).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",104))+":"+new String(tempString.substring(1381,1396).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",105))+":"+new String(tempString.substring(1397,1415).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",109))+":"+new String(tempString.substring(1447,1455).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",112))+":"+new String(tempString.substring(1499,1500).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",124))+":"+new String(tempString.substring(1657,1669).getBytes(), "gbk")+",");
+            result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+new String(tempString.substring(2367,2379).getBytes(), "gbk")+"}");
+            System.out.println(tempString.indexOf("0505072289837085411155403353529294W"));
+            System.out.println(("0505072289837085411155403353529294W").length());
+            System.out.println(tempString.substring(381,385));
+            System.out.println(result);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }*/
 /*        String t1=" 1     2";
         String t2="*1*****2";
         System.out.println(t1.replaceAll("  ","!").split("\\s+").length);
