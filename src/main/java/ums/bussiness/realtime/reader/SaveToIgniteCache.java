@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by zhaikaixuan on 11/08/2017.
@@ -77,8 +79,8 @@ public class SaveToIgniteCache {
                         Integer.parseInt(splitColumns[setting.getInt("SysGroupItemInfo.rcdVerIndex")]),
                         splitColumns[setting.getInt("SysGroupItemInfo.addDatetimeIndex")],
                         splitColumns[setting.getInt("SysGroupItemInfo.addUserIdIndex")],
-                        splitColumns[setting.getInt("SysGroupItemInfo.updDatetimeIndex")],
-                        splitColumns[setting.getInt("SysGroupItemInfo.updUserIdIndex")]);
+                        "",//splitColumns[setting.getInt("SysGroupItemInfo.updDatetimeIndex")],
+                        "");//splitColumns[setting.getInt("SysGroupItemInfo.updUserIdIndex")]);
                 String keyValue = splitColumns[0] + splitColumns[1] + splitColumns[2] + splitColumns[3] + splitColumns[4];
                 CacheConfiguration<String, SysGroupItemInfo> sysGroupItemInfoCfg = new CacheConfiguration<>();
                 sysGroupItemInfoCfg.setCacheMode(CacheMode.LOCAL);
@@ -94,20 +96,65 @@ public class SaveToIgniteCache {
             InputStreamReader sysTxnCdInfoinputFileReader = new InputStreamReader(sysTxnCdInfoFile);
             BufferedReader sysTxnCdInforeader = new BufferedReader(sysTxnCdInfoinputFileReader);
             // 一次读入一行，直到读入null为文件结束
+
             while ((tempString = sysTxnCdInforeader.readLine()) != null) {
-                String[] splitColumns = tempString.trim().split("\\|");
-                SysTxnCdInfo item = new SysTxnCdInfo(splitColumns[setting.getInt("SysTxnCdInfo.txnKeyIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.txnCodeIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.txnDesIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.bmsTxnCodeIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.settFlgIndex")],
-                        Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.dcFlgIndex")]),
-                        splitColumns[setting.getInt("SysTxnCdInfo.txnCodeGrp")],
-                        Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.rcdVerIndex")]),
-                        splitColumns[setting.getInt("SysTxnCdInfo.addDatetimeIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.addUserIdIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
-                        splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
+                String[] splitColumns = tempString.replace("|||", "| | |").replace("||", "| |").trim().split("\\|");
+                SysTxnCdInfo item = new SysTxnCdInfo();
+                if (splitColumns.length == 12) {
+                    item = new SysTxnCdInfo(splitColumns[setting.getInt("SysTxnCdInfo.txnKeyIndex")],
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnCodeIndex")],
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnDesIndex")],
+                            splitColumns[setting.getInt("SysTxnCdInfo.bmsTxnCodeIndex")],
+                            splitColumns[setting.getInt("SysTxnCdInfo.settFlgIndex")],
+                            Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.dcFlgIndex")]),
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnCodeGrp")],
+                            Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.rcdVerIndex")]),
+                            splitColumns[setting.getInt("SysTxnCdInfo.addDatetimeIndex")],
+                            splitColumns[setting.getInt("SysTxnCdInfo.addUserIdIndex")],
+                            "",//splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
+                            "");//splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
+                }
+                else if (splitColumns.length == 14){
+                    item = new SysTxnCdInfo(splitColumns[0]+"|"+splitColumns[1]+"|"+splitColumns[2],
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnCodeIndex")+2],
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnDesIndex")+2],
+                            splitColumns[setting.getInt("SysTxnCdInfo.bmsTxnCodeIndex")+2],
+                            splitColumns[setting.getInt("SysTxnCdInfo.settFlgIndex")+2],
+                            Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.dcFlgIndex") +2]),
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnCodeGrp")+2],
+                            Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.rcdVerIndex")+2]),
+                            splitColumns[setting.getInt("SysTxnCdInfo.addDatetimeIndex")+2],
+                            splitColumns[setting.getInt("SysTxnCdInfo.addUserIdIndex")+2],
+                            "",//splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
+                            "");//splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
+                }
+                else {
+                    int offset = splitColumns.length - 12;
+                    String first = "";
+                    List<String> firstField = Arrays.asList(splitColumns).subList(0, offset+1);
+                    boolean flag = false;
+                    for (String field:firstField){
+                        if (flag){
+                            first += "|";
+                        }else {
+                            flag = true;
+                        }
+                        first+=field;
+                    }
+                    item = new SysTxnCdInfo(first.toString(),
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnCodeIndex")+offset],
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnDesIndex")+offset],
+                            splitColumns[setting.getInt("SysTxnCdInfo.bmsTxnCodeIndex")+offset],
+                            splitColumns[setting.getInt("SysTxnCdInfo.settFlgIndex")+offset],
+                            Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.dcFlgIndex") +offset]),
+                            splitColumns[setting.getInt("SysTxnCdInfo.txnCodeGrp")+offset],
+                            Integer.parseInt(splitColumns[setting.getInt("SysTxnCdInfo.rcdVerIndex")+offset]),
+                            splitColumns[setting.getInt("SysTxnCdInfo.addDatetimeIndex")+offset],
+                            splitColumns[setting.getInt("SysTxnCdInfo.addUserIdIndex")+offset],
+                            "",//splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
+                            "");//splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
+                }
+                System.out.println(item.getTxnKey());
                 String keyValue = splitColumns[0];
                 CacheConfiguration<String, SysTxnCdInfo> sysTxnCdInfoCfg = new CacheConfiguration<>();
                 sysTxnCdInfoCfg.setCacheMode(CacheMode.LOCAL);
