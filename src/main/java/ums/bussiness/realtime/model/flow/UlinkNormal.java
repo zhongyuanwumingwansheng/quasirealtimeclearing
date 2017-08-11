@@ -52,21 +52,6 @@ public class UlinkNormal extends Ulink implements Serializable{
     @QuerySqlField(index = false)
     private String serConcode = null;
 
-    public String getSerConcode() {
-        return serConcode;
-    }
-
-    public void setSerConcode(String serConcode) {
-        this.serConcode = serConcode;
-    }
-
-    public String getMsgType() {
-        return msgType;
-    }
-
-    public void setMsgType(String msgType) {
-        this.msgType = msgType;
-    }
 
     /**
      * 消息类型
@@ -74,13 +59,7 @@ public class UlinkNormal extends Ulink implements Serializable{
     @QuerySqlField(index = false)
     private String msgType = null;
 
-    public boolean getFilterFlag() {
-        return filterFlag;
-    }
 
-    public void setFilterFlag(boolean filterFlag) {
-        this.filterFlag = filterFlag;
-    }
 
     /**
      * 筛选标志位
@@ -107,7 +86,29 @@ public class UlinkNormal extends Ulink implements Serializable{
         this.txnAmt = txnAmt;
     }
 
+    public String getSerConcode() {
+        return serConcode;
+    }
 
+    public void setSerConcode(String serConcode) {
+        this.serConcode = serConcode;
+    }
+
+    public String getMsgType() {
+        return msgType;
+    }
+
+    public void setMsgType(String msgType) {
+        this.msgType = msgType;
+    }
+
+    public boolean getFilterFlag() {
+        return filterFlag;
+    }
+
+    public void setFilterFlag(boolean filterFlag) {
+        this.filterFlag = filterFlag;
+    }
     public UlinkNormal() {
         super();
         this.procCode = ValueDefault.STRING_DEFAULT;
