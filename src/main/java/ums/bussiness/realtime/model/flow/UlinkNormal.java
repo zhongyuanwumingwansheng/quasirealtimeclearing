@@ -1,25 +1,31 @@
 package ums.bussiness.realtime.model.flow;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import ums.bussiness.realtime.common.ValueDefault;
+
+import java.io.Serializable;
 
 /**
  * Created by root on 7/27/17.
  */
 
 
-public class UlinkNormal extends Ulink{
+public class UlinkNormal extends Ulink implements Serializable{
 
     /**
      * 交易处理码
      */
+    @QuerySqlField(index = true)
     private String procCode = null;
     /**
      * 交易应答码
      */
+    @QuerySqlField(index = false)
     private String respCode = null;
     /**
      * 交易应答状态
      */
+    @QuerySqlField(index = false)
     private String tranStat = null;
 
     public String gettId() {
@@ -33,14 +39,17 @@ public class UlinkNormal extends Ulink{
     /**
      * 支付商户号
      */
+    @QuerySqlField(index = true)
     private String mId = null;
     /**
      * 支付商户号
      */
+    @QuerySqlField(index = true)
     private String tId = null;
     /**
      * 无
      */
+    @QuerySqlField(index = false)
     private String serConcode = null;
 
     public String getSerConcode() {
@@ -62,6 +71,7 @@ public class UlinkNormal extends Ulink{
     /**
      * 消息类型
      */
+    @QuerySqlField(index = false)
     private String msgType = null;
 
     public boolean getFilterFlag() {
@@ -80,11 +90,13 @@ public class UlinkNormal extends Ulink{
     /**
      * 交易金额,单位元
      */
+    @QuerySqlField(index = false)
     private double txnAmt = 0;
 
     /**
      * 手续费,单位分
      */
+    @QuerySqlField(index = false)
     private double exchange;
 
     public double getTxnAmt() {
