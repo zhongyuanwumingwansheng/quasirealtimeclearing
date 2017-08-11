@@ -20,41 +20,16 @@ import java.io.InputStreamReader;
  */
 public class SaveToIgniteCache {
     private static Config setting = ConfigFactory.load();
-    //public IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
+    /*
+    public IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
     public IgniteCache<String, SysGroupItemInfo> sysGroupItemInfoCache = null;
     public IgniteCache<String, SysTxnCdInfo> sysTxnCdInfoCache = null;
     public IgniteCache<String, SysMapItemInfo> sysMapItemInfoCache = null;
+    */
     private static Ignite ignite = Ignition.start();
     //private IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
     //private IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
-    public SaveToIgniteCache() throws IgniteException{
-
-        {
-            System.out.println();
-            System.out.println(">>> Ignite started.");
-            //cache configuration for bmsStInfo
-            CacheConfiguration<String, BmsStInfo> bmsStInfoCfg = new CacheConfiguration<>();
-            bmsStInfoCfg.setCacheMode(CacheMode.LOCAL);
-            bmsStInfoCfg.setName("BmsStInfo");
-            IgniteCache<String, BmsStInfo> bmsStInfoCache = ignite.getOrCreateCache(bmsStInfoCfg);
-            /*
-            //cache configuration for sysGroupItemInfo
-            CacheConfiguration<String, SysGroupItemInfo> sysGroupItemInfoCfg = new CacheConfiguration<>();
-            sysGroupItemInfoCfg.setCacheMode(CacheMode.LOCAL);
-            sysGroupItemInfoCfg.setName("SysGroupItemInfo");
-            sysGroupItemInfoCache = ignite.getOrCreateCache(sysGroupItemInfoCfg);
-            //cache configuration for sysTxnCdInfo
-            CacheConfiguration<String, SysTxnCdInfo> sysTxnCdInfoCfg = new CacheConfiguration<>();
-            sysTxnCdInfoCfg.setCacheMode(CacheMode.LOCAL);
-            sysTxnCdInfoCfg.setName("SysTxnCdInfo");
-            sysTxnCdInfoCache = ignite.getOrCreateCache(sysTxnCdInfoCfg);
-            //cache configuration for SysMapItemInfo
-            CacheConfiguration<String, SysMapItemInfo> sysMapItemInfoCfg = new CacheConfiguration<>();
-            sysMapItemInfoCfg.setCacheMode(CacheMode.LOCAL);
-            sysMapItemInfoCfg.setName("SysMapItemInfo");
-            sysMapItemInfoCache = ignite.getOrCreateCache(sysMapItemInfoCfg);
-            */
-        }
+    public SaveToIgniteCache() {
     }
 
     public void parseTableAndSave2Ignite(){
@@ -105,7 +80,11 @@ public class SaveToIgniteCache {
                         splitColumns[setting.getInt("SysGroupItemInfo.updDatetimeIndex")],
                         splitColumns[setting.getInt("SysGroupItemInfo.updUserIdIndex")]);
                 String keyValue = splitColumns[0] + splitColumns[1] + splitColumns[2] + splitColumns[3] + splitColumns[4];
-                //sysGroupItemInfoCache.put(keyValue, item);
+                CacheConfiguration<String, SysGroupItemInfo> sysGroupItemInfoCfg = new CacheConfiguration<>();
+                sysGroupItemInfoCfg.setCacheMode(CacheMode.LOCAL);
+                sysGroupItemInfoCfg.setName("SysGroupItemInfo");
+                IgniteCache<String, SysGroupItemInfo> sysGroupItemInfoCache = ignite.getOrCreateCache(sysGroupItemInfoCfg);
+                sysGroupItemInfoCache.put(keyValue, item);
             }
             sysGroupItemInforeader.close();
 
@@ -130,7 +109,11 @@ public class SaveToIgniteCache {
                         splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
                         splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
                 String keyValue = splitColumns[0];
-                //sysTxnCdInfoCache.put(keyValue, item);
+                CacheConfiguration<String, SysTxnCdInfo> sysTxnCdInfoCfg = new CacheConfiguration<>();
+                sysTxnCdInfoCfg.setCacheMode(CacheMode.LOCAL);
+                sysTxnCdInfoCfg.setName("SysTxnCdInfo");
+                IgniteCache<String, SysTxnCdInfo> sysTxnCdInfoCache = ignite.getOrCreateCache(sysTxnCdInfoCfg);
+                sysTxnCdInfoCache.put(keyValue, item);
             }
             sysTxnCdInforeader.close();
 
@@ -146,7 +129,11 @@ public class SaveToIgniteCache {
                         splitColumns[setting.getInt("SysMapItemInfo.srcItemIndex")],
                         splitColumns[setting.getInt("SysMapItemInfo.mapResultIndex")]);
                 String keyValue = splitColumns[0];
-                //sysMapItemInfoCache.put(keyValue, item);
+                CacheConfiguration<String, SysMapItemInfo> sysMapItemInfoCfg = new CacheConfiguration<>();
+                sysMapItemInfoCfg.setCacheMode(CacheMode.LOCAL);
+                sysMapItemInfoCfg.setName("SysMapItemInfo");
+                IgniteCache<String, SysMapItemInfo> sysMapItemInfoCache = ignite.getOrCreateCache(sysMapItemInfoCfg);
+                sysMapItemInfoCache.put(keyValue, item);
             }
             sysMapItemInforeader.close();
         } catch (IOException e) {
@@ -157,11 +144,12 @@ public class SaveToIgniteCache {
     public static void main(String args[]){
         SaveToIgniteCache cache = new SaveToIgniteCache();
         cache.parseTableAndSave2Ignite();
-
-        //System.out.println(cache.bmsStInfoCache.get("89863015998936586").toString());
+        /*
+        System.out.println(cache.bmsStInfoCache.get("89863015998936586").toString());
         System.out.println(cache.sysGroupItemInfoCache.get("4802000020170724QMJF_NEW02898310145114004").toString());
         System.out.println(cache.sysMapItemInfoCache.get("1898350555110002,35059294").toString());
         System.out.println(cache.sysTxnCdInfoCache.get("E07").toString());
+        */
     }
 
 
