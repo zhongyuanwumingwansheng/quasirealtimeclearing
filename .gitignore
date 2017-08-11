@@ -44,3 +44,8 @@ publish/
 *.parquet
 .DS_Store
 compute/src/main/scala/com/.DS_Store
+
+# Personal
+MyTestInJava*
+MyTestInScala*
+HbaseUtilTest*
