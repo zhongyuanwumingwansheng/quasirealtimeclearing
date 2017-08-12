@@ -51,6 +51,14 @@ class HbaseUtil(conf: HBaseConfiguration, connection: Connection, admin: Admin, 
     }
   }
 
+  def getConnection():Connection = {
+    if (!connection.isClosed) {
+      return connection
+    }else{
+      return null
+    }
+  }
+
   def delRowKey(tableName: String, rowKey: List[String]): Unit = {
     val tableInterface = connection.getTable(TableName.valueOf(tableName))
     try {
