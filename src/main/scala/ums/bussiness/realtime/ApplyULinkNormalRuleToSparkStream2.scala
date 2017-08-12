@@ -1,15 +1,11 @@
 package ums.bussiness.realtime
 
-import java.util.Properties
-import java.lang.{Long => JLong}
 import java.util
 
 import com.typesafe.config._
 import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.ignite.Ignition
-import org.apache.ignite.cache.query.SqlQuery
 import org.apache.ignite.cache.query.annotations.QuerySqlField
 import org.apache.ignite.configuration.{CacheConfiguration, IgniteConfiguration}
 import org.apache.spark.api.java.StorageLevels
