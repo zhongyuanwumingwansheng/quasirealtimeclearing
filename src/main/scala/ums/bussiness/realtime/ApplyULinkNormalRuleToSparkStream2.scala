@@ -11,7 +11,7 @@ import org.apache.hadoop.hbase.util.Bytes
 import org.apache.ignite.Ignition
 import org.apache.ignite.cache.query.SqlQuery
 import org.apache.ignite.cache.query.annotations.QuerySqlField
-import org.apache.ignite.configuration.IgniteConfiguration
+import org.apache.ignite.configuration.{CacheConfiguration, IgniteConfiguration}
 import org.apache.spark.api.java.StorageLevels
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.kafka.KafkaUtils
@@ -28,7 +28,7 @@ import org.apache.ignite.scalar.scalar
 import org.apache.ignite.scalar.scalar._
 import org.apache.ignite.{Ignite, IgniteCache}
 import org.apache.spark.rdd.RDD
-import ums.bussiness.realtime.common.{HbaseUtil, IgniteUtil}
+import ums.bussiness.realtime.common.{HbaseUtil, IgniteFunction, IgniteUtil}
 import ums.bussiness.realtime.model.table.{BmsStInfo, SysGroupItemInfo, SysMapItemInfo, SysTxnCdInfo}
 
 import scala.collection.mutable
@@ -39,6 +39,7 @@ import scala.collection.mutable
 object ApplyULinkNormalRuleToSparkStream2 extends Logging {
   implicit val format = Serialization.formats(ShortTypeHints(List()))
   private val CONFIG = "example-ignite.xml"
+  private val cacheName = "records"
   private val SYS_TXN_CODE_INFO_CACHE_NAME = "sys_txn_code_info"
   private val SYS_GROUP_ITEM_INFO_CACHE_NAME = "sys_group_item_info"
   private val SYS_MAP_ITEM_INFO_CACHE_NAME = "sys_map_item_info"
@@ -79,7 +80,6 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       try {
         val JObject(message) = parse(formatLine).asInstanceOf[JObject]
         message.map(keyValue =>
-          //            record.put(keyValue._1,keyValue._2.extract[String])
           keyValue._1 match {
             case "MSG_TYPE" => ulinkNormal.setMsgType(keyValue._2.extract[String])
             case "PROC_CODE" => ulinkNormal.setProcCode(keyValue._2.extract[String])
@@ -122,8 +122,9 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
     //交易码转换
     val transRecords = filterRecoders.map { record =>
+
       val filed = record.getMsgType + "|" + record.getProcCode + "|" + record.getSerConcode
-      val query_sql = s"txnKey = ${filed}";
+      val query_sql = s"txnKey = ${filed}"
       val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.sql(query_sql).getAll
       if (queryResult.size > 0) {
         val filterFlag = queryResult.get(0).getValue.getSettFlg match {
@@ -175,8 +176,10 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       //手续费计算
       //商户档案信息
       val storeNo = record.getSerConcode.substring(20, 24)
+      val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
+      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
       //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)
-      val query_merchant_sql = s"merNo = ${record.getMerNo}";
+      val query_merchant_sql = s"select * from BmsStInfo where merNo = ${record.getMerNo} order by decode(trim(mapp_main),1,1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)";
       val queryMerchantResult = cache$[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
       //当前计算手续费
       var current_charge:Double = 0
