@@ -102,6 +102,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       val filterRecords = new ArrayBuffer[UlinkNormal]
       iter =>
         val ignite = IgniteUtil(setting)
+//        addCacheConfig(ignite)
         destroyCache$(cacheName)
         createCache$(cacheName, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
         iter.foreach { record =>
@@ -123,15 +124,9 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       val ignite = IgniteUtil(setting)
       val filed = record.getMsgType + "|" + record.getProcCode + "|" + record.getSerConcode
       val query_sql = "\"SysTxnCdInfo\".SysTxnCdInfo.bmsTxnCode > 0"
-      val cacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
-      cacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
-      ignite.addCacheConfiguration(cacheConfiguration)
-//      val query = new SqlQuery[String, SysTxnCdInfo](classOf[SysTxnCdInfo], query_sql)
-//      query.setDistributedJoins(true)
-//      query.setReplicatedOnly(true)
-      //      val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.query(query).getAll
-      //      val queryResult = ignite.cache[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).sql(query_sql).getAll
-      //      val queryResult = ignite$.getOrCreateCache[String, SysTxnCdInfo](cacheConfiguration).sql(query_sql).getAll
+//      val cacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
+//      cacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+//      ignite.addCacheConfiguration(cacheConfiguration)
       val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.sql(query_sql).getAll
       if (queryResult.size > 0) {
         println("it has some result...")
@@ -264,6 +259,21 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     streamContext.awaitTermination()
     streamContext.stop(true, true)
 
+  }
+
+  def addCacheConfig(ignite: Ignite): Unit ={
+    val txnCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
+    txnCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    ignite.addCacheConfiguration(txnCacheConfiguration)
+    val groupCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
+    groupCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    ignite.addCacheConfiguration(groupCacheConfiguration)
+    val mapCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
+    mapCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    ignite.addCacheConfiguration(mapCacheConfiguration)
+    val bmsCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
+    bmsCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    ignite.addCacheConfiguration(bmsCacheConfiguration)
   }
 
 }
