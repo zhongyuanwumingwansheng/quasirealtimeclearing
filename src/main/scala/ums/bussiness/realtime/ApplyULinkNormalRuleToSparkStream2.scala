@@ -108,7 +108,11 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         iter.foreach { record =>
           cache$(cacheName).get.put(record.getmId(), record)
         }
-        val sql = "(txnAmt > 500 and respCode != 01) or (respCode != 00 and respCode != 10)"
+//        val sql = "(UlinkNormal.procCode != 01 and UlinkNormal.procCode != 02)"
+        val sql = "(UlinkNormal.procCode != \'01\' and UlinkNormal.procCode != \'02\')" +
+          " or (UlinkNormal.respCode != \'00\' and UlinkNormal.respCode != \'10\' and UlinkNormal.respCode != \'11\' and UlinkNormal.respCode != \'16\' and UlinkNormal.respCode != \'A2\' " +
+          "and UlinkNormal.respCode != \'A4\' and UlinkNormal.respCode != \'A5\' and UlinkNormal.respCode != \'A6\' and UlinkNormal.respCode != \'Y1\' and UlinkNormal.respCode != \'Y3\') " +
+          " or (UlinkNormal.tranStat != \'1\' and UlinkNormal.tranStat != \'2\' and UlinkNormal.tranStat != \'3\')"
         val result = cache$[String, UlinkNormal](cacheName).get.sql(sql).getAll
         val result_iterator = result.iterator()
         while (result_iterator.hasNext) {
