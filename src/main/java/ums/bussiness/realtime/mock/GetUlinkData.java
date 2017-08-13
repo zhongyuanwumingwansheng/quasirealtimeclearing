@@ -83,8 +83,7 @@ public class GetUlinkData {
             String fileName=fileNameAry[i];
             try {
                 file = new FileInputStream(fileName);
-                //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
-                inputFileReader = new InputStreamReader(file);
+                inputFileReader = new InputStreamReader(file, setting.getString("coding"));
                 reader = new BufferedReader(inputFileReader, setting.getInt("inputBuffer"));
                 // 一次读入一行，直到读入null为文件结束
                 while ((tempString = reader.readLine()) != null) {
@@ -95,40 +94,33 @@ public class GetUlinkData {
                     //TODO.the data has problem. each line's length of data is not exactly the same
                     if(topic.equals("ULinkIncre")){
                         //TODO,Hard Code.
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",8))+"\":\""+new String(tempString.substring(212,213).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",10))+"\":\""+new String(tempString.substring(216,217).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",29))+"\":\""+new String(tempString.substring(381,385).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",99))+"\":\""+new String(tempString.substring(1307,1332).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",104))+"\":\""+new String(tempString.substring(1381,1396).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",105))+"\":\""+new String(tempString.substring(1397,1415).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",109))+"\":\""+new String(tempString.substring(1447,1455).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",112))+"\":\""+new String(tempString.substring(1499,1500).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",124))+"\":\""+new String(tempString.substring(1657,1669).getBytes(), setting.getString("coding"))+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",160))+"\":\""+new String(tempString.substring(2367,2379).getBytes(), setting.getString("coding"))+"\"}");
-/*                      result.append(setting.getString(String.format("ULinkIncre.p%d",8))+":"+tempString.substring(212,213)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",10))+":"+tempString.substring(216,217)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",29))+":"+tempString.substring(381,385)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",99))+":"+tempString.substring(1307,1332)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",104))+":"+tempString.substring(1381,1396)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",105))+":"+tempString.substring(1397,1415)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",109))+":"+tempString.substring(1447,1455)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",112))+":"+tempString.substring(1499,1500)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",124))+":"+tempString.substring(1657,1669)+",");
-                        result.append(setting.getString(String.format("ULinkIncre.p%d",160))+":"+tempString.substring(2367,2379)+"}");*/
+                        //for test chinese
+                        //System.out.println(getGbKSubStr(tempString, 41,81));
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",8))+"\":\""+getGbKSubStr(tempString, 212,213)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",10))+"\":\""+getGbKSubStr(tempString, 216,217)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",29))+"\":\""+getGbKSubStr(tempString, 381,385)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",99))+"\":\""+getGbKSubStr(tempString, 1307,1332)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",104))+"\":\""+getGbKSubStr(tempString, 1381,1396)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",105))+"\":\""+getGbKSubStr(tempString, 1397,1415)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",109))+"\":\""+getGbKSubStr(tempString, 1447,1455)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",112))+"\":\""+getGbKSubStr(tempString, 1499,1500)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",124))+"\":\""+getGbKSubStr(tempString, 1657,1669)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",160))+"\":\""+getGbKSubStr(tempString, 2367,2379)+"\"}");
                     }
                     if(topic.equals("ULinkNormal")){
                         String[]values=tempString.split("\\|");
                         //TODO,Hard Code
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",4))+"\":\""+values[4]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",5))+"\":\""+values[5]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",7))+"\":\""+values[7]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",25))+"\":\""+values[25]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",33))+"\":\""+values[33]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",34))+"\":\""+values[34]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",42))+"\":\""+values[42]+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",61))+"\":\""+values[61]+"\"}");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",4))+"\":\""+values[4].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",5))+"\":\""+values[5].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",7))+"\":\""+values[7].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",25))+"\":\""+values[25].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",33))+"\":\""+values[33].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",34))+"\":\""+values[34].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",42))+"\":\""+values[42].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",61))+"\":\""+values[61].trim()+"\"}");
                     }
                     //按需求逐笔读取
+                    //producer.send(new KeyedMessage<String, String>(topic, key, new String(tempString.getBytes(), "gbk")));
                     producer.send(new KeyedMessage<String, String>(topic, key, result.toString()));
                 }
                 reader.close();
@@ -164,5 +156,28 @@ public class GetUlinkData {
         System.out.println("Sending data costs:" + String.valueOf(endTime-beginTime) + "Millis");
     }
 
+    /**
+     *
+     * @param orignal the value for substr
+     * @param beginByte the beginning byte index, inclusive.
+     * @param endByte the ending byte index, exclusive.
+     * @return
+     */
+    public String getGbKSubStr(String orignal, int beginByte, int endByte){
+        String result=null;
+        int length=endByte-beginByte;
+        byte[]bytes=new byte[length];
+        try{
+            byte[]originBytes=orignal.getBytes("gbk");
+            for (int i = beginByte; i < endByte; i++){
+                bytes[i-beginByte]=originBytes[i];
+            }
+            result = new String(bytes, "gbk").trim();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }finally {
+            return result;
+        }
+    }
 
 }
