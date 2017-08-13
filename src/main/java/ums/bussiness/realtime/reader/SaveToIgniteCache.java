@@ -45,19 +45,19 @@ public class SaveToIgniteCache {
             // 一次读入一行，直到读入null为文件结束
             while ((tempString = bmsStInforeader.readLine()) != null) {
                 String[] splitColumns = tempString.trim().split("\\|");
-                BmsStInfo item = new BmsStInfo(splitColumns[setting.getInt("BmsStInfo.merIdIndex")],
-                        splitColumns[setting.getInt("BmsStInfo.merIdIndex")],
-                        splitColumns[setting.getInt("BmsStInfo.merIdIndex")],
-                        Integer.parseInt(splitColumns[setting.getInt("BmsStInfo.merIdIndex")]),
-                        splitColumns[setting.getInt("BmsStInfo.merIdIndex")],
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.merIdIndex")]),
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.merIdIndex")]),
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.merIdIndex")]),
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.merIdIndex")]));
+                System.out.println(splitColumns[setting.getInt("BmsStInfo.merNoIndex")]);
+                BmsStInfo item = new BmsStInfo("",
+                        splitColumns[setting.getInt("BmsStInfo.merNoIndex")],
+                        splitColumns[setting.getInt("BmsStInfo.mapMainIndex")],
+                        Integer.parseInt(splitColumns[setting.getInt("BmsStInfo.apptypeidIndex")]),
+                        splitColumns[setting.getInt("BmsStInfo.creditCalTypeIndex")],
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditCalcRateIndex")]),
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditCalAmtIndex")]),
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditMinAmtIndex")]),
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditMaxAmtIndex")]));
                 String keyValue = splitColumns[0] + splitColumns[1];
                 CacheConfiguration<String, BmsStInfo> bmsStInfoCfg = new CacheConfiguration<>();
-//                bmsStInfoCfg.setCacheMode(CacheMode.LOCAL);
-                bmsStInfoCfg.setIndexedTypes(String.class,BmsStInfo.class);
+                bmsStInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 bmsStInfoCfg.setName("BmsStInfo");
                 IgniteCache<String, BmsStInfo> bmsStInfoCache = ignite.getOrCreateCache(bmsStInfoCfg);
                 bmsStInfoCache.put(keyValue, item);
@@ -70,6 +70,7 @@ public class SaveToIgniteCache {
             BufferedReader sysGroupItemInforeader = new BufferedReader(sysGroupItemInfoinputFileReader);
             while ((tempString = sysGroupItemInforeader.readLine()) != null) {
                 String[] splitColumns = tempString.trim().split("\\|");
+
                 SysGroupItemInfo item = new SysGroupItemInfo(splitColumns[setting.getInt("SysGroupItemInfo.instIdIndex")],
                         splitColumns[setting.getInt("SysGroupItemInfo.batDateIndex")],
                         splitColumns[setting.getInt("SysGroupItemInfo.groupIdIndex")],
@@ -84,8 +85,7 @@ public class SaveToIgniteCache {
                         "");//splitColumns[setting.getInt("SysGroupItemInfo.updUserIdIndex")]);
                 String keyValue = splitColumns[0] + splitColumns[1] + splitColumns[2] + splitColumns[3] + splitColumns[4];
                 CacheConfiguration<String, SysGroupItemInfo> sysGroupItemInfoCfg = new CacheConfiguration<>();
-                sysGroupItemInfoCfg.setIndexedTypes(String.class,SysGroupItemInfo.class);
-//                sysGroupItemInfoCfg.setCacheMode(CacheMode.LOCAL);
+                sysGroupItemInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysGroupItemInfoCfg.setName("SysGroupItemInfo");
                 IgniteCache<String, SysGroupItemInfo> sysGroupItemInfoCache = ignite.getOrCreateCache(sysGroupItemInfoCfg);
                 sysGroupItemInfoCache.put(keyValue, item);
@@ -159,8 +159,7 @@ public class SaveToIgniteCache {
                 System.out.println(item.getTxnKey());
                 String keyValue = splitColumns[0];
                 CacheConfiguration<String, SysTxnCdInfo> sysTxnCdInfoCfg = new CacheConfiguration<>();
-                sysTxnCdInfoCfg.setIndexedTypes(String.class,SysTxnCdInfo.class);
-//                sysTxnCdInfoCfg.setCacheMode(CacheMode.LOCAL);
+                sysTxnCdInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysTxnCdInfoCfg.setName("SysTxnCdInfo");
                 IgniteCache<String, SysTxnCdInfo> sysTxnCdInfoCache = ignite.getOrCreateCache(sysTxnCdInfoCfg);
                 sysTxnCdInfoCache.put(keyValue, item);
@@ -168,7 +167,7 @@ public class SaveToIgniteCache {
             sysTxnCdInforeader.close();
 
             //read sysMapItemInfo
-            FileInputStream sysMapItemInfoFile = new FileInputStream(setting.getString("BmsStInfo.BmsStInfoLoc"));
+            FileInputStream sysMapItemInfoFile = new FileInputStream(setting.getString("SysMapItemInfo.SysMapItemInfoLoc"));
             //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
             InputStreamReader sysMapItemInfoinputFileReader = new InputStreamReader(sysMapItemInfoFile);
             BufferedReader sysMapItemInforeader = new BufferedReader(sysMapItemInfoinputFileReader);
@@ -178,10 +177,9 @@ public class SaveToIgniteCache {
                 SysMapItemInfo item = new SysMapItemInfo(splitColumns[setting.getInt("SysMapItemInfo.mapIdIndex")],
                         splitColumns[setting.getInt("SysMapItemInfo.srcItemIndex")],
                         splitColumns[setting.getInt("SysMapItemInfo.mapResultIndex")]);
-                String keyValue = splitColumns[0];
+                String keyValue = splitColumns[0]+splitColumns[1]+splitColumns[2]+splitColumns[3]+splitColumns[4];
                 CacheConfiguration<String, SysMapItemInfo> sysMapItemInfoCfg = new CacheConfiguration<>();
-                sysMapItemInfoCfg.setIndexedTypes(String.class,SysMapItemInfo.class);
-//                sysMapItemInfoCfg.setCacheMode(CacheMode.LOCAL);
+                sysMapItemInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysMapItemInfoCfg.setName("SysMapItemInfo");
                 IgniteCache<String, SysMapItemInfo> sysMapItemInfoCache = ignite.getOrCreateCache(sysMapItemInfoCfg);
                 sysMapItemInfoCache.put(keyValue, item);
