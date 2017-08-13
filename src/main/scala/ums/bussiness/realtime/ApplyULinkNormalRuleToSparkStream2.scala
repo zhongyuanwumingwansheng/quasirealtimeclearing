@@ -127,10 +127,10 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     val transRecords = filterRecoders.map { record =>
       val ignite = IgniteUtil(setting)
       val filed = record.getMsgType + "|" + record.getProcCode + "|" + record.getSerConcode
-      val query_sql = "\"SysTxnCdInfo\".SysTxnCdInfo.bmsTxnCode > 0"
+      val query_sql = "SysTxnCdInfo.txnKey = \'" + filed + "\'"
       val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.sql(query_sql).getAll
+      println("SysTxnCdInfo  has " + queryResult.size() + " result by the txnKey = " + filed)
       if (queryResult.size > 0) {
-        println("it has some result...")
         val filterFlag = queryResult.get(0).getValue.getSettFlg match {
           case "0" | "7" | "8" | "E" | "F" | "H" | "N" | "Z" => false
           case "1" | "2" | "3" | "4" | "5" | "6" => true
@@ -140,24 +140,26 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record
     }
-    transRecords.print
 
     //清分规则定位与计算
     val saveRecords = transRecords.map { record =>
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
-      val query_group_sql = s"instId = ${record.gettId()}";
+      val query_group_sql = s"SysGroupItemInfo.item = ${record.getmId}";
       val queryResult = cache$[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME).get.sql(query_group_sql).getAll
+      println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql = " + query_group_sql)
       val append_groupId = new mutable.StringBuilder()
-      while (queryResult.iterator().hasNext) {
-        val groupId = queryResult.iterator().next().getValue.getGroupId
+      val resultIterator = queryResult.iterator()
+      while (resultIterator.hasNext) {
+        val groupId = resultIterator.next().getValue.getGroupId
         append_groupId.append(groupId)
       }
       record.setGroupId(append_groupId.mkString(","))
 
       //按终端入账
       var query_mer_filed = record.getmId + "," + record.gettId
-      var query_mer_sql = s"srcItem = ${query_mer_filed} and typeId = 1";
+      var query_mer_sql = s"SysMapItemInfo.srcItem = ${query_mer_filed} and typeId = 1";
       var queryMerResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_mer_sql).getAll
+      println("SysMapItemInfo  has " + queryResult.size() + " result by the query_mer_sql = " + query_mer_sql)
       if (queryMerResult.size > 0) {
         val mapId = queryMerResult.get(0).getValue.getMapId
         val mapResult = queryMerResult.get(0).getValue.getMapResult
@@ -171,6 +173,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         val query_merchant_filed = record.getmId + "," + storeNo
         val query_merchant_sql = s"srcItem = ${query_merchant_filed} and typeId = 1082";
         val queryMerchantResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
+        println("SysMapItemInfo  has " + queryResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
         if (queryMerResult.size > 0) {
           val mapId = queryMerchantResult.get(0).getValue.getMapId
           val mapResult = queryMerchantResult.get(0).getValue.getMapResult
@@ -230,6 +233,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
       record
     }
+    saveRecords.print
 
     saveRecords.foreachRDD { rdd =>
       rdd.mapPartitions { iter =>
