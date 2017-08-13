@@ -1,5 +1,6 @@
 package ums.bussiness.realtime.model.table;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import ums.bussiness.realtime.common.ValueDefault;
 
 import java.io.Serializable;
@@ -41,18 +42,22 @@ public class SysTxnCdInfo implements Serializable{
     /**
      * 代码索引
      */
+    @QuerySqlField(index = true)
     private String txnKey;
     /**
      * 交易代码
      */
+    @QuerySqlField(index = true)
     private String txnCode;
     /**
      * 交易描述
      */
+    @QuerySqlField(index = true)
     private String txnDes;
     /**
      * BMS交易代码
      */
+    @QuerySqlField(index = true)
     private String bmsTxnCode;
     /**
      * 清算标志
@@ -73,36 +78,44 @@ public class SysTxnCdInfo implements Serializable{
      * W：回传当地
 
      */
+    @QuerySqlField(index = true)
     private String settFlg;
     /**
      * 借贷标记
      * 1: 借记
      * -1： 贷记
      */
+    @QuerySqlField(index = true)
     private int dcFlg;
     /**
      * 交易类型分类标识
      */
+    @QuerySqlField(index = true)
     private String txnCodeGrp;
     /**
      * 记录版本
      */
+    @QuerySqlField(index = true)
     private int rcdVer;
     /**
      * 新增记录时间
      */
+    @QuerySqlField(index = true)
     private String addDatetime;
     /**
      * 新增记录操作员
      */
+    @QuerySqlField(index = true)
     private String addUserId;
     /**
      * 修改记录时间
      */
+    @QuerySqlField(index = true)
     private String updDatetime;
     /**
      * 修改记录操作员
      */
+    @QuerySqlField(index = true)
     private String updUserId;
 
     public SysTxnCdInfo() {

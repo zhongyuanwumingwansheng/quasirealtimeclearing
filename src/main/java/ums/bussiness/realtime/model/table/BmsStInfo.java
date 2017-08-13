@@ -1,5 +1,6 @@
 package ums.bussiness.realtime.model.table;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import ums.bussiness.realtime.common.ValueDefault;
 
 import java.io.Serializable;
@@ -13,10 +14,12 @@ public class BmsStInfo implements Serializable{
     /**
      * 商户ID
      */
+    @QuerySqlField(index = true)
     private String merId;
     /**
      * 商户编号
      */
+    @QuerySqlField(index = true)
     private String merNo;
 /*    //Maybe use later
     private String batDate=null;
@@ -24,10 +27,12 @@ public class BmsStInfo implements Serializable{
     /**
      * 主应用
      */
+    @QuerySqlField(index = true)
     private String mappMain;
     /**
      * 多应用类型
      */
+    @QuerySqlField(index = false)
     private int apptypeId;
     /**
      * 计费方式
@@ -36,23 +41,29 @@ public class BmsStInfo implements Serializable{
      * 11 - 固定金额收费
      * 其他类型待处理
      */
+    @QuerySqlField(index = false)
     private String creditCalcType;
     /**
      * 费率
      */
+    @QuerySqlField(index = false)
     private double creditCalcRate;
     /**
      * 手续费
      */
+    @QuerySqlField(index = false)
     private double creditCalcAmt;
     /**
      * 最低收费金额
      */
+    @QuerySqlField(index = false)
     private double creditMinAmt;
     /**
      * 最高收费金额
      */
+    @QuerySqlField(index = false)
     private double creditMaxAmt;
+
     public BmsStInfo() {
         this.merId = ValueDefault.STRING_DEFAULT;
         this.merNo = ValueDefault.STRING_DEFAULT;

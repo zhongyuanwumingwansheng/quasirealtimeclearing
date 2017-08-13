@@ -1,5 +1,6 @@
 package ums.bussiness.realtime.model.table;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import ums.bussiness.realtime.common.ValueDefault;
 
 import java.io.Serializable;
@@ -9,6 +10,26 @@ import java.io.Serializable;
  */
 
 public class SysMapItemInfo implements Serializable{
+
+    @QuerySqlField(index = true)
+    private String mapId;
+    @QuerySqlField(index = true)
+    private String srcItem;
+    @QuerySqlField(index = false)
+    private String mapResult;
+
+    public SysMapItemInfo(String mapId, String srcItem, String mapResult) {
+        this.mapId = mapId;
+        this.srcItem = srcItem;
+        this.mapResult = mapResult;
+    }
+
+    public SysMapItemInfo() {
+        this.mapId = ValueDefault.STRING_DEFAULT;
+        this.srcItem = ValueDefault.STRING_DEFAULT;
+        this.mapResult = ValueDefault.STRING_DEFAULT;
+    }
+
     public String getMapId() {
         return mapId;
     }
@@ -33,19 +54,4 @@ public class SysMapItemInfo implements Serializable{
         this.mapResult = mapResult;
     }
 
-    public SysMapItemInfo(String mapId, String srcItem, String mapResult) {
-        this.mapId = mapId;
-        this.srcItem = srcItem;
-        this.mapResult = mapResult;
-    }
-
-    public SysMapItemInfo() {
-        this.mapId = ValueDefault.STRING_DEFAULT;
-        this.srcItem = ValueDefault.STRING_DEFAULT;
-        this.mapResult = ValueDefault.STRING_DEFAULT;
-    }
-
-    private String mapId;
-    private String srcItem;
-    private String mapResult;
 }

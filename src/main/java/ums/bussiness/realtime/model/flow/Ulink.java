@@ -43,6 +43,7 @@ public class Ulink {
      */
     private boolean noBmsStlInfo;
 
+
     public int getDcFlag() {
         return dcFlag;
     }

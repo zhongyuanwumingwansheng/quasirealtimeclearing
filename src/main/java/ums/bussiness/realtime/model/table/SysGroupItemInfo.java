@@ -1,5 +1,6 @@
 package ums.bussiness.realtime.model.table;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import ums.bussiness.realtime.common.ValueDefault;
 
 import java.io.Serializable;
@@ -25,50 +26,62 @@ public class SysGroupItemInfo implements Serializable{
     /**
      * 银商机构号
      */
+    @QuerySqlField(index = false)
     private String instId;
     /**
      * 批量日期
      */
+    @QuerySqlField(index = false)
     private String batDate;
     /**
      * 分组ID
      */
+    @QuerySqlField(index = true)
     private String groupId;
     /**
      * 分组类型ID
      */
+    @QuerySqlField(index = false)
     private String groupTypeId;
     /**
      * 分组成员
      */
+    @QuerySqlField(index = false)
     private String item;
     /**
      * 生效日期
      */
+    @QuerySqlField(index = false)
     private String becomeEffectiveDate;
     /**
      * 失效日期
      */
+    @QuerySqlField(index = false)
     private String lostEffectiveDate;
     /**
      * 记录版本
      */
+    @QuerySqlField(index = false)
     private int rcdVer;
     /**
      * 新增记录时间
      */
+    @QuerySqlField(index = false)
     private String addDatetime;
     /**
      * 新增记录操作员
      */
+    @QuerySqlField(index = false)
     private String addUserId;
     /**
      * 修改记录时间
      */
+    @QuerySqlField(index = false)
     private String updDatetime;
     /**
      * 修改记录操作员
      */
+    @QuerySqlField(index = false)
     private String updUserId;
 
     public SysGroupItemInfo() {
