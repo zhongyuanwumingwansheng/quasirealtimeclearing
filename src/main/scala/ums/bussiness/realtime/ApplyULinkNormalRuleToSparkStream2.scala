@@ -124,9 +124,6 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       val ignite = IgniteUtil(setting)
       val filed = record.getMsgType + "|" + record.getProcCode + "|" + record.getSerConcode
       val query_sql = "\"SysTxnCdInfo\".SysTxnCdInfo.bmsTxnCode > 0"
-//      val cacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
-//      cacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
-//      ignite.addCacheConfiguration(cacheConfiguration)
       val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.sql(query_sql).getAll
       if (queryResult.size > 0) {
         println("it has some result...")
