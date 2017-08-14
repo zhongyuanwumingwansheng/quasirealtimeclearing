@@ -102,7 +102,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       val filterRecords = new ArrayBuffer[UlinkNormal]
       iter =>
         val ignite = IgniteUtil(setting)
-//        addCacheConfig(ignite)
+        addCacheConfig(ignite)
         destroyCache$(cacheName)
         createCache$(cacheName, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
         iter.foreach { record =>
@@ -126,6 +126,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     //交易码转换
     val transRecords = filterRecoders.map { record =>
       val ignite = IgniteUtil(setting)
+      addCacheConfig(ignite)
       val filed = record.getMsgType + "|" + record.getProcCode + "|" + record.getSerConcode
       val query_sql = "SysTxnCdInfo.txnKey = \'" + filed + "\'"
       val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.sql(query_sql).getAll
@@ -140,13 +141,13 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record
     }
-
+//    transRecords.print
     //清分规则定位与计算
     val saveRecords = transRecords.map { record =>
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
       val query_group_sql = s"SysGroupItemInfo.item = ${record.getmId}";
       val queryResult = cache$[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME).get.sql(query_group_sql).getAll
-      println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql = " + query_group_sql)
+      println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql ： " + query_group_sql)
       val append_groupId = new mutable.StringBuilder()
       val resultIterator = queryResult.iterator()
       while (resultIterator.hasNext) {
@@ -157,7 +158,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
       //按终端入账
       var query_mer_filed = record.getmId + "," + record.gettId
-      var query_mer_sql = s"SysMapItemInfo.srcItem = ${query_mer_filed} and typeId = 1";
+      var query_mer_sql = s"SysMapItemInfo.srcItem = \'${query_mer_filed}\' and typeId = \'1\'";
       var queryMerResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_mer_sql).getAll
       println("SysMapItemInfo  has " + queryResult.size() + " result by the query_mer_sql = " + query_mer_sql)
       if (queryMerResult.size > 0) {
@@ -270,14 +271,14 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     val txnCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
     txnCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
     ignite.addCacheConfiguration(txnCacheConfiguration)
-    val groupCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
-    groupCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    val groupCacheConfiguration = new CacheConfiguration[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME)
+    groupCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysGroupItemInfo])
     ignite.addCacheConfiguration(groupCacheConfiguration)
-    val mapCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
-    mapCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    val mapCacheConfiguration = new CacheConfiguration[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME)
+    mapCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysMapItemInfo])
     ignite.addCacheConfiguration(mapCacheConfiguration)
-    val bmsCacheConfiguration = new CacheConfiguration[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME)
-    bmsCacheConfiguration.setIndexedTypes(classOf[String], classOf[SysTxnCdInfo])
+    val bmsCacheConfiguration = new CacheConfiguration[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME)
+    bmsCacheConfiguration.setIndexedTypes(classOf[String], classOf[BmsStInfo])
     ignite.addCacheConfiguration(bmsCacheConfiguration)
   }
 
