@@ -143,11 +143,11 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record
     }
-    transRecords.print
+
     //清分规则定位与计算
     val saveRecords = transRecords.map { record =>
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
-      val query_group_sql = s"SysGroupItemInfo.item = ${record.getmId}";
+      val query_group_sql = s"SysGroupItemInfo.item = \'${record.getmId}\'";
       val queryResult = cache$[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME).get.sql(query_group_sql).getAll
       println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql ： " + query_group_sql)
       val append_groupId = new mutable.StringBuilder()
@@ -236,6 +236,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
       record
     }
+    saveRecords.print
 //    saveRecords.print
 
     saveRecords.foreachRDD { rdd =>

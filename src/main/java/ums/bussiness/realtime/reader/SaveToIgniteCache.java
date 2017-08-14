@@ -180,6 +180,7 @@ public class SaveToIgniteCache {
                 SysMapItemInfo item = new SysMapItemInfo(splitColumns[setting.getInt("SysMapItemInfo.mapIdIndex")],
                         splitColumns[setting.getInt("SysMapItemInfo.srcItemIndex")],
                         splitColumns[setting.getInt("SysMapItemInfo.mapResultIndex")]);
+                item.setTypeId(splitColumns[setting.getInt("SysMapItemInfo.typeId")]);
                 String keyValue = splitColumns[0]+splitColumns[1]+splitColumns[2]+splitColumns[3]+splitColumns[4];
                 CacheConfiguration<String, SysMapItemInfo> sysMapItemInfoCfg = new CacheConfiguration<>();
                 sysMapItemInfoCfg.setIndexedTypes(String.class, SysMapItemInfo.class);

@@ -17,6 +17,8 @@ public class SysMapItemInfo implements Serializable{
     private String srcItem;
     @QuerySqlField(index = false)
     private String mapResult;
+    @QuerySqlField(index = true)
+    private String typeId;
 
     public SysMapItemInfo(String mapId, String srcItem, String mapResult) {
         this.mapId = mapId;
@@ -42,6 +44,10 @@ public class SysMapItemInfo implements Serializable{
         return mapResult;
     }
 
+    public String getTypeId() {
+        return typeId;
+    }
+
     public void setMapId(String mapId) {
         this.mapId = mapId;
     }
@@ -52,6 +58,10 @@ public class SysMapItemInfo implements Serializable{
 
     public void setMapResult(String mapResult) {
         this.mapResult = mapResult;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
     }
 
 }
