@@ -1,11 +1,13 @@
 package ums.bussiness.realtime
 
 import java.util
+import java.util.Random
 
 import com.typesafe.config._
 import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
+import org.apache.ignite.cache.CacheMode
 import org.apache.ignite.cache.query.{Query, SqlQuery}
 import org.apache.ignite.cache.query.annotations.QuerySqlField
 import org.apache.ignite.configuration.{CacheConfiguration, IgniteConfiguration}
@@ -98,11 +100,11 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
     //交易过滤
     val filterRecoders = records.mapPartitions {
-      val cacheName = "records"
+
       val filterRecords = new ArrayBuffer[UlinkNormal]
       iter =>
+        val cacheName = "records" + new Random(10).longs()
         val ignite = IgniteUtil(setting)
-        addCacheConfig(ignite)
         destroyCache$(cacheName)
         createCache$(cacheName, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
         iter.foreach { record =>
@@ -141,7 +143,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record
     }
-//    transRecords.print
+    transRecords.print
     //清分规则定位与计算
     val saveRecords = transRecords.map { record =>
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
@@ -234,7 +236,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
       record
     }
-    saveRecords.print
+//    saveRecords.print
 
     saveRecords.foreachRDD { rdd =>
       rdd.mapPartitions { iter =>

@@ -43,7 +43,6 @@ object IgniteUtil extends Serializable {
     //    igniteConfiguration = new IgniteConfiguration
     //    ignite = Ignition.start(igniteConfiguration)
     if (ignite == null) {
-//      igniteConfiguration.setClientMode(true)
 //      igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
       ignite = Ignition.start(igniteConfiguration)
     }
