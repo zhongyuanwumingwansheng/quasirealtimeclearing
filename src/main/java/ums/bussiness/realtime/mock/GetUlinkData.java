@@ -105,8 +105,10 @@ public class GetUlinkData {
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",109))+"\":\""+getGbKSubStr(tempString, 1447,1455)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",112))+"\":\""+getGbKSubStr(tempString, 1499,1500)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",124))+"\":\""+getGbKSubStr(tempString, 1657,1669)+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",157))+"\":\""+getGbKSubStr(tempString, 2175,2239)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",160))+"\":\""+getGbKSubStr(tempString, 2367,2379)+"\"}");
                     }
+                    System.out.println(result.toString());
                     if(topic.equals("ULinkNormal")){
                         String[]values=tempString.split("\\|");
                         //TODO,Hard Code
@@ -117,8 +119,10 @@ public class GetUlinkData {
                         result.append("\""+setting.getString(String.format("ULinkNormal.p%d",33))+"\":\""+values[33].trim()+"\",");
                         result.append("\""+setting.getString(String.format("ULinkNormal.p%d",34))+"\":\""+values[34].trim()+"\",");
                         result.append("\""+setting.getString(String.format("ULinkNormal.p%d",42))+"\":\""+values[42].trim()+"\",");
-                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",61))+"\":\""+values[61].trim()+"\"}");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",61))+"\":\""+values[61].trim()+"\",");
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",68))+"\":\""+values[68].trim()+"\"}");
                     }
+                    System.out.println(result.toString());
                     //按需求逐笔读取
                     //producer.send(new KeyedMessage<String, String>(topic, key, new String(tempString.getBytes(), "gbk")));
                     producer.send(new KeyedMessage<String, String>(topic, key, result.toString()));

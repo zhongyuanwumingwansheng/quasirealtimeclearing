@@ -30,7 +30,7 @@ class IgniteFunction {
     val condition = split_str(0).trim
     for (i <- 1 until split_str.size - 1 if i%2!=0) {
       val parameter = split_str(i).trim
-      if (condition == parameter || condition.equals(parameter)) {
+      if (condition.equals(parameter)) {
         output = split_str(i + 1)
       } else {
       }

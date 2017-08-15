@@ -21,7 +21,7 @@ import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
 import org.json4s.native.JsonMethods._
 import ums.bussiness.realtime.model.flow.UlinkNormal
-
+import java.util.Date
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import org.apache.ignite.scalar.scalar
 import org.apache.ignite.scalar.scalar._
@@ -44,6 +44,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
   private val SYS_MAP_ITEM_INFO_CACHE_NAME = "SysMapItemInfo"
   private val BMS_STL_INFO_CACHE_NAME = "BmsStInfo"
   private val HISTORY_RECORD_TABLE = "ulink_normal_table"
+  private val SUMMARY = "summary"
 
   case class MerchantHisAmout(@QuerySqlField(index = true) merchant_no: String, @QuerySqlField(index = false) amout: Double)
 
@@ -64,13 +65,20 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     val sc = streamContext.sparkContext
     sc.setLogLevel("ERROR")
     val sqlContext = new SQLContext(sc)
-    val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
+    val ulinkNormalTopicMap = scala.collection.immutable.Map("ULinkNormal" -> 1)
+    //val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
     val kafkaStreams = (1 to kafkaReceiverNum).map { _ =>
-      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, topicMap, StorageLevels.MEMORY_AND_DISK_SER)
+      KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkNormalTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
     }
     val lines = streamContext.union(kafkaStreams).map(_._2)
 
-    lines.print
+    //lines.print
+
+    //cache for summary
+    val cacheName = "summary"
+    val ignite = IgniteUtil(setting)
+    destroyCache$(SUMMARY)
+    createCache$(SUMMARY, indexedTypes = Seq(classOf[String], classOf[Double]))
 
     //解析数据
     val records = lines.map(line => {
@@ -89,6 +97,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
             case "MID" => ulinkNormal.setmId(keyValue._2.extract[String])
             case "TRAN_STATUS" => ulinkNormal.setTranStat(keyValue._2.extract[String])
             case "RESP_CODE" => ulinkNormal.setRespCode(keyValue._2.extract[String])
+            case "RSV4" => ulinkNormal.setRSV4(keyValue._2.extract[String])
             case _ =>
           }
         )
@@ -139,58 +148,73 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
           case "1" | "2" | "3" | "4" | "5" | "6" => true
           case _ => false
         }
+        val dcFlag = queryResult.get(0).getValue.getDcFlg
         record.setFilterFlag(filterFlag)
+        record.setDcFlag(dcFlag)
       }
       record
     }
 
     //清分规则定位与计算
-    val saveRecords = transRecords.map { record =>
+    val mapRecords = transRecords.map { record =>
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
       val query_group_sql = s"SysGroupItemInfo.item = \'${record.getmId}\'";
       val queryResult = cache$[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME).get.sql(query_group_sql).getAll
       println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql ： " + query_group_sql)
-      val append_groupId = new mutable.StringBuilder()
+      var append_groupId: List[String] = List()
       val resultIterator = queryResult.iterator()
       while (resultIterator.hasNext) {
         val groupId = resultIterator.next().getValue.getGroupId
-        append_groupId.append(groupId)
+        append_groupId = groupId :: append_groupId
       }
       record.setGroupId(append_groupId.mkString(","))
 
       //按终端入账
       var query_mer_filed = record.getmId + "," + record.gettId
-      var query_mer_sql = s"SysMapItemInfo.srcItem = \'${query_mer_filed}\' and typeId = \'1\'";
+      var query_mer_sql = s"SysMapItemInfo.srcItem = \'${query_mer_filed}\' and SysMapItemInfo.typeId = \'1\'";
       var queryMerResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_mer_sql).getAll
       println("SysMapItemInfo  has " + queryResult.size() + " result by the query_mer_sql = " + query_mer_sql)
       if (queryMerResult.size > 0) {
         val mapId = queryMerResult.get(0).getValue.getMapId
         val mapResult = queryMerResult.get(0).getValue.getMapResult
-        record.setMerNo(mapResult)
+        if (mapResult != ""){
+          record.setMerNo(mapResult)
+        }
       }
 
       //根据流水信息映射商户号
-      if (record.getGroupId == "APL") {
+      //if (record.getGroupId == "APL") {
+      if (record.getGroupId.split(",").contains("APL")) {
         //获取门店号
-        val storeNo = record.getSerConcode.substring(20, 24)
+        val storeNo = record.getRSV4.substring(20, 24)
         val query_merchant_filed = record.getmId + "," + storeNo
-        val query_merchant_sql = s"srcItem = ${query_merchant_filed} and typeId = 1082";
+        val query_merchant_sql = s"srcItem = \'${query_merchant_filed}\' and typeId = \'1082\'";
         val queryMerchantResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
         println("SysMapItemInfo  has " + queryResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
         if (queryMerResult.size > 0) {
           val mapId = queryMerchantResult.get(0).getValue.getMapId
           val mapResult = queryMerchantResult.get(0).getValue.getMapResult
-          record.setMerNo(mapResult)
+          if (mapResult != ""){
+            record.setMerNo(mapResult)
+          }
         }
       }
+      //如果都没有，用mid汇总
+      if (record.getMerNo == "") {
+        record.setMerNo(record.getmId())
+      }
+      record
+    }
 
+
+    val saveRecords = mapRecords.map { record =>
       //手续费计算
       //商户档案信息
-      val storeNo = record.getSerConcode.substring(20, 24)
+      //val storeNo = record.getSerConcode.substring(20, 24)
       val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
-      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
+//      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
       //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)
-      val query_merchant_sql = s"select * from BmsStInfo where merNo = ${record.getMerNo} order by decode(trim(mapp_main),1,1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)";
+      val query_merchant_sql = s"select * from BmsStInfo where merNo = \'${record.getMerNo}\' order by decode(trim(mappMain),\'1\',1,2), decode(apptypeId,1,1,86,2,74,3,18,4,39,5,40,6,68,7)"
       val queryMerchantResult = cache$[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
       //当前计算手续费
       var current_charge: Double = 0
@@ -206,7 +230,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
         if (creditCalcType == "10") {
           //按扣率计费
-          current_charge = current_trans_aount / creditCalcRate
+          current_charge = current_trans_aount * creditCalcRate / 100
         } else if (creditCalcType == "11") {
           //按笔计费
           current_charge = creditCalcAmt
@@ -228,39 +252,40 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
 
 
-      //根据入账商户ID汇总可清算金额
+      //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
       var today_history_amout: Double = 0.0D
-      today_history_amout = cache$[String, Double](BMS_STL_INFO_CACHE_NAME).get.get(storeNo)
+      today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
       today_history_amout = today_history_amout + current_trans_aount - current_charge
-      cache$[String, Double](BMS_STL_INFO_CACHE_NAME).get.put(storeNo, today_history_amout)
+      cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
 
       record
     }
-    saveRecords.print
-//    saveRecords.print
+    //saveRecords.print
 
     saveRecords.foreachRDD { rdd =>
-      rdd.mapPartitions { iter =>
+      rdd.foreachPartition{ iter =>
         val hbaseUtil = HbaseUtil(setting)
+        val cf = "t"
+        hbaseUtil.createTable(HISTORY_RECORD_TABLE, cf)
         val puts = new util.ArrayList[Put]
         while (iter.hasNext) {
           val record = iter.next()
-          val rowkey = record.getmId() + record.gettId()
+          val now = new Date()
+          val rowkey = record.getmId() + record.gettId() + now.getTime.toString
           val put = new Put(Bytes.toBytes(rowkey))
-          val cf = "t"
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mid"), Bytes.toBytes(record.getmId()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mid"), Bytes.toBytes(record.getmId()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mid"), Bytes.toBytes(record.getmId()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mid"), Bytes.toBytes(record.getmId()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mid"), Bytes.toBytes(record.getmId()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tid"), Bytes.toBytes(record.gettId()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("txnAmt"), Bytes.toBytes(record.getTxnAmt()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("procCode"), Bytes.toBytes(record.getProcCode()))
           puts.add(put)
+          println("add record: mid: " + record.getmId() + "tid: " + record.gettId() + "txnAmt: " + record.getTxnAmt)
         }
+
         val tableInterface = hbaseUtil.getConnection.getTable(TableName.valueOf(HISTORY_RECORD_TABLE))
         tableInterface.put(puts)
         tableInterface.close()
-        iter
-      }
-
+        }
     }
 
 

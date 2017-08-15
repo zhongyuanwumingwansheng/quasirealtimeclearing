@@ -1,43 +1,59 @@
 package ums.bussiness.realtime.model.flow;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import ums.bussiness.realtime.common.ValueDefault;
+
+import java.io.Serializable;
 
 /**
  * Created by root on 7/27/17.
  */
 
-public class UlinkIncre extends Ulink {
+public class UlinkIncre extends Ulink implements Serializable{
     /**
      * 支付交易代码
      */
+    @QuerySqlField(index = true)
     private String transCdPay;
     /**
      * 支付交易状态
      */
+    @QuerySqlField(index = true)
     private String paySt;
     /**
      * 交易冲正状态
      */
+    @QuerySqlField(index = true)
     private String transStRsvl;
     /**
      * 支付方路由机构代码
      */
+    @QuerySqlField(index = true)
     private String routInstIdCd;
     /**
      * 交易应答状态
      */
+    @QuerySqlField(index = true)
     private String transSt;
     /**
      * 产品类型
      */
+    @QuerySqlField(index = true)
     private String prodStyle;
     /**
      * 请求保留
      */
+    @QuerySqlField(index = true)
+    private String dRsvd1;
+    /**
+     * 请求保留
+     */
+    @QuerySqlField(index = true)
     private int dRsvd6;
     /**
      * 支付商户号
      */
+    @QuerySqlField(index = true)
     private String mchntIdPay;
 
     public String getTermIdPay() {
@@ -133,6 +149,10 @@ public class UlinkIncre extends Ulink {
         this.prodStyle = prodStyle;
     }
 
+    public void setdRsvd1(String dRsvd1) {
+        this.dRsvd1 = dRsvd1;
+    }
+
     public void setdRsvd6(int dRsvd6) {
         this.dRsvd6 = dRsvd6;
     }
@@ -177,6 +197,10 @@ public class UlinkIncre extends Ulink {
 
     public String getProdStyle() {
         return prodStyle;
+    }
+
+    public String getdRsvd1() {
+        return dRsvd1;
     }
 
     public int getdRsvd6() {

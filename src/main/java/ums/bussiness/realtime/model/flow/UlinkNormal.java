@@ -34,7 +34,7 @@ public class UlinkNormal extends Ulink implements Serializable {
     @QuerySqlField(index = true)
     private String mId = null;
     /**
-     * 支付商户号
+     * 终端id
      */
     @QuerySqlField(index = true)
     private String tId = null;
@@ -69,6 +69,12 @@ public class UlinkNormal extends Ulink implements Serializable {
     @QuerySqlField(index = false)
     private double exchange;
 
+    /**
+     * REV4
+     */
+    @QuerySqlField(index = false)
+    private String RSV4;
+
     public UlinkNormal() {
         super();
         this.procCode = ValueDefault.STRING_DEFAULT;
@@ -81,6 +87,7 @@ public class UlinkNormal extends Ulink implements Serializable {
         this.filterFlag = ValueDefault.BOOLEAN_DEFAULT;
         this.txnAmt = ValueDefault.DOUBLE_DEFAULT;
         this.exchange = ValueDefault.DOUBLE_DEFAULT;
+        this.RSV4 = ValueDefault.STRING_DEFAULT;
     }
 
     public UlinkNormal(String procCode, String respCode, String tranStat, String mId, String tId, String serConcode, String msgType, boolean filterFlag, double txnAmt, double exchange) {
@@ -178,5 +185,13 @@ public class UlinkNormal extends Ulink implements Serializable {
 
     public void setExchange(double exchange) {
         this.exchange = exchange;
+    }
+
+    public String getRSV4() {
+        return RSV4;
+    }
+
+    public void setRSV4(String RSV4) {
+        this.RSV4 = RSV4;
     }
 }

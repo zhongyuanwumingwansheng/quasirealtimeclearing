@@ -30,6 +30,7 @@ public class SysMapItemInfo implements Serializable{
         this.mapId = ValueDefault.STRING_DEFAULT;
         this.srcItem = ValueDefault.STRING_DEFAULT;
         this.mapResult = ValueDefault.STRING_DEFAULT;
+        this.typeId = ValueDefault.STRING_DEFAULT;
     }
 
     public String getMapId() {
