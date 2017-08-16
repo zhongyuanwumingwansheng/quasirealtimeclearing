@@ -10,7 +10,6 @@ import java.util.Date;
  */
 
 public class Ulink {
-
     /**
      * 借贷标记
      * 1: 借记
@@ -114,5 +113,4 @@ public class Ulink {
         this.merNo = merNo;
         this.uTime = uTime;
     }
-
 }

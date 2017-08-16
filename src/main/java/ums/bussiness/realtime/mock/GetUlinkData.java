@@ -96,6 +96,7 @@ public class GetUlinkData {
                         //TODO,Hard Code.
                         //for test chinese
                         //System.out.println(getGbKSubStr(tempString, 41,81));
+                        result.append("\""+setting.getString(String.format("ULinkIncre.p%d",0))+"\":\""+getGbKSubStr(tempString, 0,12)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",8))+"\":\""+getGbKSubStr(tempString, 212,213)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",10))+"\":\""+getGbKSubStr(tempString, 216,217)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",29))+"\":\""+getGbKSubStr(tempString, 381,385)+"\",");
@@ -108,10 +109,10 @@ public class GetUlinkData {
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",157))+"\":\""+getGbKSubStr(tempString, 2175,2239)+"\",");
                         result.append("\""+setting.getString(String.format("ULinkIncre.p%d",160))+"\":\""+getGbKSubStr(tempString, 2367,2379)+"\"}");
                     }
-                    System.out.println(result.toString());
                     if(topic.equals("ULinkNormal")){
                         String[]values=tempString.split("\\|");
                         //TODO,Hard Code
+                        result.append("\""+setting.getString(String.format("ULinkNormal.p%d",0))+"\":\""+values[0].trim()+"\",");
                         result.append("\""+setting.getString(String.format("ULinkNormal.p%d",4))+"\":\""+values[4].trim()+"\",");
                         result.append("\""+setting.getString(String.format("ULinkNormal.p%d",5))+"\":\""+values[5].trim()+"\",");
                         result.append("\""+setting.getString(String.format("ULinkNormal.p%d",7))+"\":\""+values[7].trim()+"\",");

@@ -11,6 +11,11 @@ import java.io.Serializable;
 
 public class UlinkIncre extends Ulink implements Serializable{
     /**
+     * 平台流水号
+     */
+    @QuerySqlField(index = true)
+    private String pltSsn;
+    /**
      * 支付交易代码
      */
     @QuerySqlField(index = true)
@@ -161,6 +166,10 @@ public class UlinkIncre extends Ulink implements Serializable{
         this.mchntIdPay = mchntIdPay;
     }
 
+    public void setPltSsn(String pltSsn) {
+        this.pltSsn = pltSsn;
+    }
+
     public void setFilterFlag(boolean filterFlag) {this.filterFlag = filterFlag; }
 
     public void setTransAmt(double transAmt) {
@@ -203,11 +212,19 @@ public class UlinkIncre extends Ulink implements Serializable{
         return dRsvd1;
     }
 
+    public String getPltSsn() {
+        return pltSsn;
+    }
     public int getdRsvd6() {
         return dRsvd6;
     }
 
     public boolean getFilterFlag() {return filterFlag; }
 
-
+    public String toString(){
+        return "UlinkNormal: " + "|paySt:" + paySt + "|transCdPay:" + transCdPay + "|paySt:" + paySt + "|transStRsvl:" + transStRsvl +
+                "|routInstIdCd:" + routInstIdCd + "|transSt:" + transSt + "|prodStyle:" + prodStyle + "|dRsvd1:" +
+                dRsvd1 + "|filterFlag:" + filterFlag + "|dRsvd6:" + dRsvd6 + "|exchange:" + exchange +
+                "|mchntIdPay:" + mchntIdPay + "|transAmt:" + transAmt;
+    }
 }

@@ -11,7 +11,11 @@ import java.io.Serializable;
 
 
 public class UlinkNormal extends Ulink implements Serializable {
-
+    /**
+     * 交易流水id
+     */
+    @QuerySqlField(index = true)
+    private String id = null;
     /**
      * 交易处理码
      */
@@ -105,10 +109,18 @@ public class UlinkNormal extends Ulink implements Serializable {
     }
 
     public String toString(){
-        return "UlinkNormal: " + "|procCode:" + procCode + "|respCode:" + respCode + "|tranStat:" + tranStat + "|mId:" + mId + "|tId:" + tId + "|serConcode:" + serConcode + "|msgType:" + msgType + "|filterFlag:" + filterFlag + "|txnAmt:" + txnAmt + "|exchange:" + exchange;
+        return "UlinkNormal: " + "|id:" + id + "|procCode:" + procCode + "|respCode:" + respCode + "|tranStat:" + tranStat + "|mId:" + mId + "|tId:" + tId + "|serConcode:" + serConcode + "|msgType:" + msgType + "|filterFlag:" + filterFlag + "|txnAmt:" + txnAmt + "|exchange:" + exchange;
     }
     public String getProcCode() {
         return procCode;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public void setProcCode(String procCode) {
@@ -163,7 +175,7 @@ public class UlinkNormal extends Ulink implements Serializable {
         this.msgType = msgType;
     }
 
-    public boolean isFilterFlag() {
+    public boolean getFilterFlag() {
         return filterFlag;
     }
 

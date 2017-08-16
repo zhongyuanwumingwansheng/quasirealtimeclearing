@@ -44,7 +44,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
   private val SYS_MAP_ITEM_INFO_CACHE_NAME = "SysMapItemInfo"
   private val BMS_STL_INFO_CACHE_NAME = "BmsStInfo"
   private val HISTORY_RECORD_TABLE = "ulink_normal_table"
-  private val SUMMARY = "summary"
+  private val SUMMARY = "NormalSummary"
 
   case class MerchantHisAmout(@QuerySqlField(index = true) merchant_no: String, @QuerySqlField(index = false) amout: Double)
 
@@ -89,6 +89,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         val JObject(message) = parse(formatLine).asInstanceOf[JObject]
         message.map(keyValue =>
           keyValue._1 match {
+            case "ID" => ulinkNormal.setId(keyValue._2.extract[String])
             case "MSG_TYPE" => ulinkNormal.setMsgType(keyValue._2.extract[String])
             case "PROC_CODE" => ulinkNormal.setProcCode(keyValue._2.extract[String])
             case "SER_CONCODE" => ulinkNormal.setSerConcode(keyValue._2.extract[String])
@@ -117,7 +118,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         destroyCache$(cacheName)
         createCache$(cacheName, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
         iter.foreach { record =>
-          cache$(cacheName).get.put(record.getmId(), record)
+          cache$(cacheName).get.put(record.getId(), record)
         }
 //        val sql = "(UlinkNormal.procCode != 01 and UlinkNormal.procCode != 02)"
         val sql = "(UlinkNormal.procCode != \'01\' and UlinkNormal.procCode != \'02\')" +
@@ -133,7 +134,6 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         cache$(cacheName).get.destroy()
         filterRecords.iterator
     }
-
     //交易码转换
     val transRecords = filterRecoders.map { record =>
       val ignite = IgniteUtil(setting)
@@ -185,19 +185,22 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       //根据流水信息映射商户号
       //if (record.getGroupId == "APL") {
       if (record.getGroupId.split(",").contains("APL")) {
-        //获取门店号
-        val storeNo = record.getRSV4.substring(20, 24)
-        val query_merchant_filed = record.getmId + "," + storeNo
-        val query_merchant_sql = s"srcItem = \'${query_merchant_filed}\' and typeId = \'1082\'";
-        val queryMerchantResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
-        println("SysMapItemInfo  has " + queryResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
-        if (queryMerResult.size > 0) {
-          val mapId = queryMerchantResult.get(0).getValue.getMapId
-          val mapResult = queryMerchantResult.get(0).getValue.getMapResult
-          if (mapResult != ""){
-            record.setMerNo(mapResult)
+        if (record.getRSV4.length >= 24){
+          //获取门店号
+          val storeNo = record.getRSV4.substring(20, 24)
+          val query_merchant_filed = record.getmId + "," + storeNo
+          val query_merchant_sql = s"srcItem = \'${query_merchant_filed}\' and typeId = \'1082\'";
+          val queryMerchantResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
+          println("SysMapItemInfo  has " + queryResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
+          if (queryMerResult.size > 0) {
+            val mapId = queryMerchantResult.get(0).getValue.getMapId
+            val mapResult = queryMerchantResult.get(0).getValue.getMapResult
+            if (mapResult != ""){
+              record.setMerNo(mapResult)
+            }
           }
         }
+        else println(record)
       }
       //如果都没有，用mid汇总
       if (record.getMerNo == "") {
@@ -205,63 +208,59 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record
     }
-
-
     val saveRecords = mapRecords.map { record =>
       //手续费计算
       //商户档案信息
       //val storeNo = record.getSerConcode.substring(20, 24)
-      val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
-//      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
-      //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)
-      val query_merchant_sql = s"select * from BmsStInfo where merNo = \'${record.getMerNo}\' order by decode(trim(mappMain),\'1\',1,2), decode(apptypeId,1,1,86,2,74,3,18,4,39,5,40,6,68,7)"
-      val queryMerchantResult = cache$[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
-      //当前计算手续费
-      var current_charge: Double = 0
-      //当前交易金额
-      val current_trans_aount: Double = record.getTxnAmt
+      if (!record.getFilterFlag) {
+        val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
+        //      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
+        //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)
+        val query_merchant_sql = s"select * from BmsStInfo where merNo = \'${record.getMerNo}\' order by decode(trim(mappMain),\'1\',1,2), decode(apptypeId,1,1,86,2,74,3,18,4,39,5,40,6,68,7)"
+        val queryMerchantResult = cache$[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
+        println("BmsStInfo  has " + queryMerchantResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
+        //当前计算手续费
+        var current_charge: Double = 0
+        //当前交易金额
+        val current_trans_aount: Double = record.getTxnAmt
 
-      if (queryMerchantResult.size > 0) {
-        val creditCalcType = queryMerchantResult.get(0).getValue.getCreditCalcType
-        val creditCalcRate = queryMerchantResult.get(0).getValue.getCreditCalcRate
-        val creditCalcAmt = queryMerchantResult.get(0).getValue.getCreditCalcAmt
-        val creditMinAmt = queryMerchantResult.get(0).getValue.getCreditMinAmt
-        val creditMaxAmt = queryMerchantResult.get(0).getValue.getCreditMaxAmt
+        if (queryMerchantResult.size > 0) {
+          val creditCalcType = queryMerchantResult.get(0).getValue.getCreditCalcType
+          val creditCalcRate = queryMerchantResult.get(0).getValue.getCreditCalcRate
+          val creditCalcAmt = queryMerchantResult.get(0).getValue.getCreditCalcAmt
+          val creditMinAmt = queryMerchantResult.get(0).getValue.getCreditMinAmt
+          val creditMaxAmt = queryMerchantResult.get(0).getValue.getCreditMaxAmt
 
-        if (creditCalcType == "10") {
-          //按扣率计费
-          current_charge = current_trans_aount * creditCalcRate / 100
-        } else if (creditCalcType == "11") {
-          //按笔计费
-          current_charge = creditCalcAmt
+          if (creditCalcType == "10") {
+            //按扣率计费
+            current_charge = current_trans_aount * creditCalcRate / 100
+          } else if (creditCalcType == "11") {
+            //按笔计费
+            current_charge = creditCalcAmt
+          } else {
+            //todo 其他类型进待处理
+
+          }
+
+          if (current_charge < creditMinAmt) {
+            //手续费下限，不能低于该值，如果录入值为 -1 为默认值，同0
+            current_charge = creditMinAmt
+          } else if (current_charge > creditMaxAmt) {
+            //手续费上限
+            current_charge = creditMaxAmt
+          }
         } else {
-          //todo 其他类型进待处理
-
+          //todo 如果一条都找不到商户信息丢待处理，打上标记
         }
-
-        if (current_charge < creditMinAmt) {
-          //手续费下限，不能低于该值，如果录入值为 -1 为默认值，同0
-          current_charge = creditMinAmt
-        } else if (current_charge > creditMaxAmt) {
-          //手续费上限
-          current_charge = creditMaxAmt
-        }
-      } else {
-        //todo 如果一条都找不到商户信息丢待处理，打上标记
-
+        //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
+        var today_history_amout: Double = 0.0D
+        today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
+        today_history_amout = today_history_amout + current_trans_aount - current_charge
+        cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
       }
-
-
-      //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
-      var today_history_amout: Double = 0.0D
-      today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-      today_history_amout = today_history_amout + current_trans_aount - current_charge
-      cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
-
       record
     }
-    //saveRecords.print
-
+    //saveRecords.print(50)
     saveRecords.foreachRDD { rdd =>
       rdd.foreachPartition{ iter =>
         val hbaseUtil = HbaseUtil(setting)
@@ -273,11 +272,20 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
           val now = new Date()
           val rowkey = record.getmId() + record.gettId() + now.getTime.toString
           val put = new Put(Bytes.toBytes(rowkey))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mid"), Bytes.toBytes(record.getmId()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tid"), Bytes.toBytes(record.gettId()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mId"), Bytes.toBytes(record.getmId()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tId"), Bytes.toBytes(record.gettId()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("txnAmt"), Bytes.toBytes(record.getTxnAmt()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("procCode"), Bytes.toBytes(record.getProcCode()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("respCode"), Bytes.toBytes(record.getRespCode()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tranStat"), Bytes.toBytes(record.getTranStat()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("procCode"), Bytes.toBytes(record.getProcCode()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("serConcode"), Bytes.toBytes(record.getSerConcode()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("msgType"), Bytes.toBytes(record.getMsgType()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("txnAmt"), Bytes.toBytes(record.getTxnAmt()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("RSV4"), Bytes.toBytes(record.getRSV4()))
           puts.add(put)
           println("add record: mid: " + record.getmId() + "tid: " + record.gettId() + "txnAmt: " + record.getTxnAmt)
         }
@@ -287,7 +295,6 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         tableInterface.close()
         }
     }
-
 
     streamContext.start()
     streamContext.awaitTermination()
