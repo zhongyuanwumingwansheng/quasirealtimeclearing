@@ -25,6 +25,9 @@ import org.json4s.jackson.Serialization
 import org.json4s.native.JsonMethods._
 import org.json4s.DefaultFormats
 import java.util.Date
+
+import org.apache.ignite.cache.CacheMode
+
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import org.apache.ignite.scalar.scalar
 import org.apache.ignite.scalar.scalar._
@@ -206,7 +209,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         //println("before filtering in partition:" + iter.length)
         val ignite = IgniteUtil(setting)
         destroyCache$(cacheName)
-        createCache$(cacheName, indexedTypes = Seq(classOf[String], classOf[UlinkIncre]))
+        createCache$(cacheName, CacheMode.LOCAL, indexedTypes = Seq(classOf[String], classOf[UlinkIncre]))
         iter.foreach { record =>
           cache$(cacheName).get.put(record.getPltSsn() + record.getMchntIdPay + record.getTermIdPay, record)
           //println(record.toString)

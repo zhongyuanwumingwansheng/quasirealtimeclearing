@@ -113,10 +113,10 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
       val filterRecords = new ArrayBuffer[UlinkNormal]
       iter =>
-        val cacheName = "records" + new Random(10).longs()
+        val cacheName = "normalRecords"
         val ignite = IgniteUtil(setting)
         destroyCache$(cacheName)
-        createCache$(cacheName, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
+        createCache$(cacheName, CacheMode.LOCAL, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
         iter.foreach { record =>
           cache$(cacheName).get.put(record.getId(), record)
         }
