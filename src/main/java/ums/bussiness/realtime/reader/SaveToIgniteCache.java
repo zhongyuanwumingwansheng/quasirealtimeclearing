@@ -49,7 +49,7 @@ public class SaveToIgniteCache {
             //read bmsStInfo
             FileInputStream bmsStInfoFile = new FileInputStream(setting.getString("BmsStInfo.BmsStInfoLoc"));
             //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
-            InputStreamReader bmsStInfoinputFileReader = new InputStreamReader(bmsStInfoFile);
+            InputStreamReader bmsStInfoinputFileReader = new InputStreamReader(bmsStInfoFile, setting.getString("coding"));
             BufferedReader bmsStInforeader = new BufferedReader(bmsStInfoinputFileReader);
             String tempString;
             // 一次读入一行，直到读入null为文件结束
@@ -77,7 +77,7 @@ public class SaveToIgniteCache {
 
             //read sysGroupItemInfo
             FileInputStream sysGroupItemInfoFile = new FileInputStream(setting.getString("SysGroupItemInfo.SysGroupItemInfoLoc"));
-            InputStreamReader sysGroupItemInfoinputFileReader = new InputStreamReader(sysGroupItemInfoFile);
+            InputStreamReader sysGroupItemInfoinputFileReader = new InputStreamReader(sysGroupItemInfoFile, setting.getString("coding"));
             BufferedReader sysGroupItemInforeader = new BufferedReader(sysGroupItemInfoinputFileReader);
             while ((tempString = sysGroupItemInforeader.readLine()) != null) {
                 String[] splitColumns = tempString.trim().split("\\|");
@@ -107,7 +107,7 @@ public class SaveToIgniteCache {
             //read sysTxnCdInfo
             FileInputStream sysTxnCdInfoFile = new FileInputStream(setting.getString("SysTxnCdInfo.SysTxnCdInfoLoc"));
             //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
-            InputStreamReader sysTxnCdInfoinputFileReader = new InputStreamReader(sysTxnCdInfoFile);
+            InputStreamReader sysTxnCdInfoinputFileReader = new InputStreamReader(sysTxnCdInfoFile, setting.getString("coding"));
             BufferedReader sysTxnCdInforeader = new BufferedReader(sysTxnCdInfoinputFileReader);
             // 一次读入一行，直到读入null为文件结束
 
@@ -182,7 +182,7 @@ public class SaveToIgniteCache {
             //read sysMapItemInfo
             FileInputStream sysMapItemInfoFile = new FileInputStream(setting.getString("SysMapItemInfo.SysMapItemInfoLoc"));
             //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
-            InputStreamReader sysMapItemInfoinputFileReader = new InputStreamReader(sysMapItemInfoFile);
+            InputStreamReader sysMapItemInfoinputFileReader = new InputStreamReader(sysMapItemInfoFile, setting.getString("coding"));
             BufferedReader sysMapItemInforeader = new BufferedReader(sysMapItemInfoinputFileReader);
             // 一次读入一行，直到读入null为文件结束
             while ((tempString = sysMapItemInforeader.readLine()) != null) {
