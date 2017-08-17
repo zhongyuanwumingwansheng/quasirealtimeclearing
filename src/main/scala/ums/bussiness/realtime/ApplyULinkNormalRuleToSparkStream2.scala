@@ -212,7 +212,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       //手续费计算
       //商户档案信息
       //val storeNo = record.getSerConcode.substring(20, 24)
-      if (!record.getFilterFlag) {
+      if (record.getFilterFlag) {
         val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
         //      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
         //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)
