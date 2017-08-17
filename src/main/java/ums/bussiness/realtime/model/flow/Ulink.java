@@ -41,6 +41,10 @@ public class Ulink {
      * 无商户档案标志, false 表示有商户档案
      */
     private boolean noBmsStlInfo;
+    /**
+     * 支持的商户计费类型"10"||"11", false 表示不是支持的这两种计费类型
+     */
+    private boolean supportedCreditCalcType;
 
 
     public int getDcFlag() {
@@ -70,6 +74,10 @@ public class Ulink {
     public boolean getNoBmsStlInfo() {return noBmsStlInfo; }
 
     public void setNoBmsStlInfo(boolean noBmsStlInfo) {this.noBmsStlInfo = noBmsStlInfo; }
+
+    public boolean getSupportedCreditCalcType() {return supportedCreditCalcType; }
+
+    public void setSupportedCreditCalcType(boolean supportedCreditCalcType) {this.supportedCreditCalcType = supportedCreditCalcType; }
 
     public void setDcFlag(int dcFlag) {
         this.dcFlag = dcFlag;
@@ -103,6 +111,7 @@ public class Ulink {
         this.merNo = ValueDefault.STRING_DEFAULT;
         this.uTime = new Date();
         this.noBmsStlInfo = ValueDefault.BOOLEAN_DEFAULT;
+        this.supportedCreditCalcType = ValueDefault.BOOLEAN_DEFAULT;
     }
 
     public Ulink(int dcFlag, String clearingFlag, int merId, String groupId, String merNo, Date uTime) {

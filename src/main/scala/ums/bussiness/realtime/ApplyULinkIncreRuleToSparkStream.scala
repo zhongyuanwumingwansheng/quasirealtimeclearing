@@ -315,23 +315,24 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         var current_charge: Double = 0
         //当前交易金额
         val current_trans_amount: Double = record.getTransAmt
-
+        //标志位，对应的商户号是否存在与商户结算信息表中
         if (queryMerchantResult.size > 0) {
           val creditCalcType = queryMerchantResult.get(0).getValue.getCreditCalcType
           val creditCalcRate = queryMerchantResult.get(0).getValue.getCreditCalcRate
           val creditCalcAmt = queryMerchantResult.get(0).getValue.getCreditCalcAmt
           val creditMinAmt = queryMerchantResult.get(0).getValue.getCreditMinAmt
           val creditMaxAmt = queryMerchantResult.get(0).getValue.getCreditMaxAmt
-
+          record.setNoBmsStlInfo(false)
           if (creditCalcType == "10") {
             //按扣率计费
             current_charge = current_trans_amount / creditCalcRate
+            record.setSupportedCreditCalcType(true)
           } else if (creditCalcType == "11") {
             //按笔计费
             current_charge = creditCalcAmt
+            record.setSupportedCreditCalcType(true)
           } else {
-            //todo 其他类型进待处理
-
+            record.setSupportedCreditCalcType(false)
           }
 
           if (current_charge < creditMinAmt) {
@@ -342,14 +343,15 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
             current_charge = creditMaxAmt
           }
         } else {
-          //todo 如果一条都找不到商户信息丢待处理，打上标记
-
+          record.setNoBmsStlInfo(true)
         }
-        //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
-        var today_history_amout: Double = 0.0D
-        today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-        today_history_amout = today_history_amout + current_trans_amount - current_charge
-        cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+        if (!record.getNoBmsStlInfo&&record.getSupportedCreditCalcType){
+          //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
+          var today_history_amout: Double = 0.0D
+          today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
+          today_history_amout = today_history_amout + current_trans_amount - current_charge
+          cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+        }
       }
       record
     }
