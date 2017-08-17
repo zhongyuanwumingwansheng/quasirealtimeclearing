@@ -553,7 +553,7 @@ map {
 
     //    }
     //sumMapAccum.toString()
-    incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
+    //incrementalResult.saveAsObjectFiles("ums_poc", ".obj")
     //汇总
     val sum = Map[String, Double]()
     incrementalResult.foreachRDD{
