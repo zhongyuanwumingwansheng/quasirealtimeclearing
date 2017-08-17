@@ -104,5 +104,5 @@ start)
   start
 ;;
 *)
-echo "使用: $NAME.sh {start|stop|restart}"
+echo "使用: $NAME.sh {start|stop|restart} incremental|normal"
 esac
