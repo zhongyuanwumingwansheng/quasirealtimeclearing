@@ -5,7 +5,10 @@ import org.apache.ignite.cache.query.SqlQuery
 import org.apache.ignite.configuration.{IgniteConfiguration, MemoryConfiguration}
 import org.apache.ignite.{Ignite, Ignition}
 import org.apache.ignite.scalar.scalar._
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder
 import ums.bussiness.realtime.model.flow.UlinkNormal
+import scala.collection.JavaConverters._
 
 class IgniteUtil(ignite:Ignite) extends Serializable{
   def createCache(cacheName: String): Unit = {
@@ -43,7 +46,15 @@ object IgniteUtil extends Serializable {
     //    igniteConfiguration = new IgniteConfiguration
     //    ignite = Ignition.start(igniteConfiguration)
     if (ignite == null) {
-//      igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
+      //igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
+      val spi: TcpDiscoverySpi = new TcpDiscoverySpi
+      val ipFinder: TcpDiscoveryVmIpFinder = new TcpDiscoveryVmIpFinder
+      ipFinder.setAddresses(setting.getString("tcpDiscoveryIpList").split(",").toSeq.asJavaCollection)
+      //ipFinder.setAddresses(Arrays.asList("127.0.0.1", "172.17.1.144", "172.17.1.145", "172.17.1.146:47500..47509"));
+      spi.setIpFinder(ipFinder)
+      igniteConfiguration.setDiscoverySpi(spi)
+      igniteConfiguration.setClientMode(true)
+      //igniteConfiguration = new IgniteConfiguration
       ignite = Ignition.start(igniteConfiguration)
     }
     ignite

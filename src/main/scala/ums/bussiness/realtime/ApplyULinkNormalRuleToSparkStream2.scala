@@ -1,7 +1,7 @@
 package ums.bussiness.realtime
 
 import java.util
-import java.util.Random
+import java.util.{Arrays, Date, Random}
 
 import com.typesafe.config._
 import org.apache.hadoop.hbase.TableName
@@ -21,15 +21,18 @@ import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
 import org.json4s.native.JsonMethods._
 import ums.bussiness.realtime.model.flow.UlinkNormal
-import java.util.Date
+
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import org.apache.ignite.scalar.scalar
 import org.apache.ignite.scalar.scalar._
-import org.apache.ignite.{Ignite, IgniteCache}
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder
+import org.apache.ignite.{Ignite, IgniteCache, Ignition}
 import org.apache.spark.rdd.RDD
 import ums.bussiness.realtime.common.{HbaseUtil, IgniteFunction, IgniteUtil}
 import ums.bussiness.realtime.model.table.{BmsStInfo, SysGroupItemInfo, SysMapItemInfo, SysTxnCdInfo}
-
+//import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
@@ -64,22 +67,18 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     streamContext.sparkContext.setLogLevel(logLevel)
     val sc = streamContext.sparkContext
     sc.setLogLevel("ERROR")
-    val sqlContext = new SQLContext(sc)
     val ulinkNormalTopicMap = scala.collection.immutable.Map("ULinkNormal" -> 1)
     //val topicMap = kafkaTopics.split(",").map((_, kafkaThread)).toMap
     val kafkaStreams = (1 to kafkaReceiverNum).map { _ =>
       KafkaUtils.createStream(streamContext, kafkaZkHost, kafkaGroup, ulinkNormalTopicMap, StorageLevels.MEMORY_AND_DISK_SER)
     }
     val lines = streamContext.union(kafkaStreams).map(_._2)
-
     //lines.print
-
-    //cache for summary
-    val cacheName = "summary"
-    val ignite = IgniteUtil(setting)
+    //val ignite = IgniteUtil(setting)
+    //val ignite = Ignition.start("")
+    IgniteUtil(setting)
     destroyCache$(SUMMARY)
-    createCache$(SUMMARY, indexedTypes = Seq(classOf[String], classOf[Double]))
-
+    createCache$(SUMMARY, CacheMode.PARTITIONED, indexedTypes = Seq(classOf[String], classOf[Double]))
     //解析数据
     val records = lines.map(line => {
       val record = new HashMap[String, String]
@@ -114,7 +113,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       val filterRecords = new ArrayBuffer[UlinkNormal]
       iter =>
         val cacheName = "normalRecords"
-        val ignite = IgniteUtil(setting)
+        IgniteUtil(setting)
         destroyCache$(cacheName)
         createCache$(cacheName, CacheMode.LOCAL, indexedTypes = Seq(classOf[String], classOf[UlinkNormal]))
         iter.foreach { record =>
@@ -212,7 +211,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       //手续费计算
       //商户档案信息
       //val storeNo = record.getSerConcode.substring(20, 24)
-      if (record.getFilterFlag) {
+      if (!record.getFilterFlag) {
         val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
         //      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
         //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)

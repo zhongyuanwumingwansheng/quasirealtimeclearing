@@ -7,7 +7,7 @@ import com.typesafe.config._
 import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.ignite.configuration.CacheConfiguration
+import org.apache.ignite.configuration.{CacheConfiguration, IgniteConfiguration}
 import org.apache.ignite.scalar.scalar.{cache$, createCache$, destroyCache$}
 import org.apache.spark.api.java.StorageLevels
 import org.apache.spark.sql.SQLContext
@@ -27,11 +27,13 @@ import org.json4s.DefaultFormats
 import java.util.Date
 
 import org.apache.ignite.cache.CacheMode
-
+import scala.collection.JavaConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import org.apache.ignite.scalar.scalar
 import org.apache.ignite.scalar.scalar._
-import org.apache.ignite.{Ignite, IgniteCache}
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder
+import org.apache.ignite.{Ignite, IgniteCache, Ignition}
 import org.apache.spark.rdd.RDD
 import ums.bussiness.realtime.common.{HbaseUtil, IgniteFunction, IgniteUtil}
 import ums.bussiness.realtime.model.table.{BmsStInfo, SysGroupItemInfo, SysMapItemInfo, SysTxnCdInfo}
@@ -162,7 +164,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
     //val queryServiceImp:QueryRelatedProperty = new QueryRelatedPropertyInDF(sys_group_item_info_df)
     //kieSession.setGlobal("queryService", queryServiceImp)
     //val kSession = sc.broadcast(kieSession)
-    val ignite = IgniteUtil(setting)
+    IgniteUtil(setting)
     destroyCache$(SUMMARY)
     createCache$(SUMMARY, indexedTypes = Seq(classOf[String], classOf[Double]))
     val records = increLines.map {

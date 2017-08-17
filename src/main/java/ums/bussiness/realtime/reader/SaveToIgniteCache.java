@@ -1,15 +1,15 @@
 package ums.bussiness.realtime.reader;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import kafka.producer.KeyedMessage;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
-import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.configuration.CacheConfiguration;
 import ums.bussiness.realtime.model.table.*;
-
+import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,10 +28,20 @@ public class SaveToIgniteCache {
     public IgniteCache<String, SysTxnCdInfo> sysTxnCdInfoCache = null;
     public IgniteCache<String, SysMapItemInfo> sysMapItemInfoCache = null;
     */
-    private static Ignite ignite = Ignition.start();
+    private Ignite ignite = null;
+    //private static Ignite ignite = Ignition.start("line/example-ignite.xml");
     //private IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
     //private IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
     public SaveToIgniteCache() {
+        TcpDiscoverySpi spi = new TcpDiscoverySpi();
+        TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
+        ipFinder.setAddresses(Arrays.asList(setting.getString("tcpDiscoveryIpList").split(",")));
+        //ipFinder.setAddresses(Arrays.asList("127.0.0.1", "172.17.1.144", "172.17.1.145", "172.17.1.146:47500..47509"));
+        spi.setIpFinder(ipFinder);
+        IgniteConfiguration cfg = new IgniteConfiguration();
+        cfg.setClientMode(true);
+        cfg.setDiscoverySpi(spi);
+        ignite = Ignition.start(cfg);
     }
 
     public void parseTableAndSave2Ignite(){
