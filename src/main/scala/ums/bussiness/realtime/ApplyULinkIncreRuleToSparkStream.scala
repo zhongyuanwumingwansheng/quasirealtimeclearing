@@ -233,7 +233,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         filterRecords.iterator
       }
     }
-    filterRecords.print(50)
+    //filterRecords.print(50)
     //交易码转换
     val transRecords = filterRecords.map { record =>
       val ignite = IgniteUtil(setting)
@@ -330,7 +330,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           record.setNoBmsStlInfo(false)
           if (creditCalcType == "10") {
             //按扣率计费
-            current_charge = current_trans_amount / creditCalcRate
+            current_charge = current_trans_amount * creditCalcRate / 100D
             record.setSupportedCreditCalcType(true)
           } else if (creditCalcType == "11") {
             //按笔计费
@@ -351,11 +351,23 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           record.setNoBmsStlInfo(true)
         }
         if (!record.getNoBmsStlInfo&&record.getSupportedCreditCalcType){
-          //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
-          var today_history_amout: Double = 0.0D
-          today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-          today_history_amout = today_history_amout + current_trans_amount - current_charge
-          cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+          if (record.getDcFlag == 1){ //借记是为负交易
+            //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
+            var today_history_amout: Double = 0.0D
+            today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
+            today_history_amout = today_history_amout - current_trans_amount + current_charge
+            cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+          }
+          else if (record.getDcFlag == -1){
+            //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
+            var today_history_amout: Double = 0.0D
+            today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
+            today_history_amout = today_history_amout + current_trans_amount - current_charge
+            cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+          }
+          else {
+            println("dcFlag error is not 1|-1: " + record)
+          }
         }
       }
       record
