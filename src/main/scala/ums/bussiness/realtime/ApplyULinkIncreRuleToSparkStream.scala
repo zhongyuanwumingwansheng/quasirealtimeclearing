@@ -351,18 +351,19 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           record.setNoBmsStlInfo(true)
         }
         if (!record.getNoBmsStlInfo&&record.getSupportedCreditCalcType){
-          if (record.getDcFlag == 1){ //借记是为负交易
+          if (record.getDcFlag == 1){ //1为借记，负交易
             //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
             var today_history_amout: Double = 0.0D
             today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-            today_history_amout = today_history_amout - current_trans_amount + current_charge
+            //ulink增值条件下对应的transAmt单位为分
+            today_history_amout = today_history_amout - current_trans_amount/100D + current_charge
             cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
           }
-          else if (record.getDcFlag == -1){
+          else if (record.getDcFlag == -1){ //-1为借记，正交易
             //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
             var today_history_amout: Double = 0.0D
             today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-            today_history_amout = today_history_amout + current_trans_amount - current_charge
+            today_history_amout = today_history_amout + current_trans_amount/100 - current_charge
             cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
           }
           else {
