@@ -318,8 +318,8 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         val queryMerchantResult = cache$[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
         //当前计算手续费
         var current_charge: Double = 0
-        //当前交易金额
-        val current_trans_amount: Double = record.getTransAmt
+        //当前交易金额, ulink增值条件下对应的transAmt单位为分，转化为元
+        val current_trans_amount: Double = record.getTransAmt/100D
         //标志位，对应的商户号是否存在与商户结算信息表中
         if (queryMerchantResult.size > 0) {
           val creditCalcType = queryMerchantResult.get(0).getValue.getCreditCalcType
@@ -355,15 +355,15 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
             //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
             var today_history_amout: Double = 0.0D
             today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-            //ulink增值条件下对应的transAmt单位为分
-            today_history_amout = today_history_amout - current_trans_amount/100D + current_charge
+
+            today_history_amout = today_history_amout - current_trans_amount + current_charge
             cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
           }
           else if (record.getDcFlag == -1){ //-1为借记，正交易
             //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
             var today_history_amout: Double = 0.0D
             today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
-            today_history_amout = today_history_amout + current_trans_amount/100 - current_charge
+            today_history_amout = today_history_amout + current_trans_amount - current_charge
             cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
           }
           else {
