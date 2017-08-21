@@ -205,7 +205,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
     val filterRecords = records.mapPartitions {
       val filterRecords = new ArrayBuffer[UlinkIncre]
       iter => {
-        val randomString = new Random(10).longs().toString
+        val randomString = new Random(10).nextLong().toString
         val cacheName = "increRecords" + randomString
         //+ new Random(10).longs().toString
         //println("before filtering in partition:" + iter.length)

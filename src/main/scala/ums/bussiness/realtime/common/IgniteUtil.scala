@@ -46,6 +46,8 @@ object IgniteUtil extends Serializable {
     //    igniteConfiguration = new IgniteConfiguration
     //    ignite = Ignition.start(igniteConfiguration)
     if (ignite == null) {
+      val memoryConfiguration = new MemoryConfiguration
+      igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
       //igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
       val spi: TcpDiscoverySpi = new TcpDiscoverySpi
       val ipFinder: TcpDiscoveryVmIpFinder = new TcpDiscoveryVmIpFinder

@@ -13,7 +13,7 @@
 #注意:
 #yarn-cluster:该模式运行的任务Driver集群中启动，本地PID  kill掉，会在其他机器启动Driver,导致Stop不能停止该模式下Job
 #yarn-client:客户端模式，Driver在客户端启动，本地PID kill,Driver不会再其他机器启动，Stop停止有效。
-master="yarn-client"
+    master="yarn-client"
 #---kafka zookeeper host---#
 kafkaZkHost=":q
 ：:2181"
