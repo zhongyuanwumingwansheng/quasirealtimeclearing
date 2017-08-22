@@ -25,7 +25,7 @@ import org.json4s.jackson.Serialization
 import org.json4s.native.JsonMethods._
 import org.json4s.DefaultFormats
 import java.util.Date
-
+import java.lang.Math
 import org.apache.ignite.cache.CacheMode
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap}
@@ -61,7 +61,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
 
     //read data from kafka
     val kafkaZkHost = setting.getString("kafkaZkHost")
-    val appName = setting.getString("appName")
+    val appName = setting.getString("increAppName")
     val processInterval = setting.getInt("processInterval")
     val logLevel = setting.getString("logLevel")
     val kafkaTopics = setting.getString("kafkaTopics")
@@ -205,7 +205,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
     val filterRecords = records.mapPartitions {
       val filterRecords = new ArrayBuffer[UlinkIncre]
       iter => {
-        val randomString = new Random(10).nextLong().toString
+        val randomString = Math.random().toString
         val cacheName = "increRecords" + randomString
         //+ new Random(10).longs().toString
         //println("before filtering in partition:" + iter.length)

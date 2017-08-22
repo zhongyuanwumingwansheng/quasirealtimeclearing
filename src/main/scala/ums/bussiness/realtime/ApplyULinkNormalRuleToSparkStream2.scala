@@ -55,7 +55,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     val setting: Config = ConfigFactory.load()
     //read data from kafka
     val kafkaZkHost = setting.getString("kafkaZkHost")
-    val appName = setting.getString("appName")
+    val appName = setting.getString("apply_normal_rule_to_stream")
     val processInterval = setting.getInt("processInterval")
     val logLevel = setting.getString("logLevel")
     val kafkaTopics = setting.getString("kafkaTopics")
@@ -112,7 +112,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
 
       val filterRecords = new ArrayBuffer[UlinkNormal]
       iter =>
-        val randomString = new Random(10).nextLong().toString
+        val randomString = Math.random().toString
         val cacheName = "normalRecords" + randomString
         IgniteUtil(setting)
         destroyCache$(cacheName)
@@ -154,7 +154,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record
     }
-
+    filterRecoders.print(10)
     //清分规则定位与计算
     val mapRecords = transRecords.map { record =>
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接

@@ -91,7 +91,7 @@ incremental)
 	;;
 normal)
       #提交服务作业#
-        nohup spark-submit --class ums.bussiness.realtime.ApplyULinkNormalRuleToSparkStream2 --supervise --master $master --driver-class-path $current/target/config/ --jars $jars $current/target/realtimeClassify-1.0-SNAPSHOT.jar $loglevel #>> $OUTFILE 2>&1 &
+        spark-submit --class ums.bussiness.realtime.ApplyULinkNormalRuleToSparkStream2 --supervise --master $master --driver-class-path $current/target/config/ --jars $jars $current/target/realtimeClassify-1.0-SNAPSHOT.jar $loglevel #>> $OUTFILE 2>&1 &
         #echo $! > $PIDFILE
         ;;
 *)
