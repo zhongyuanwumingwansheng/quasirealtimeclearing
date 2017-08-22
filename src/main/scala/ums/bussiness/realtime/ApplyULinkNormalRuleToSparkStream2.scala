@@ -55,14 +55,15 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     val setting: Config = ConfigFactory.load()
     //read data from kafka
     val kafkaZkHost = setting.getString("kafkaZkHost")
-    val appName = setting.getString("apply_normal_rule_to_stream")
+    val appName = setting.getString("normalAppName")
     val processInterval = setting.getInt("processInterval")
     val logLevel = setting.getString("logLevel")
     val kafkaTopics = setting.getString("kafkaTopics")
     val kafkaReceiverNum = setting.getInt("kafkaReceiverNum")
     val kafkaGroup = setting.getString("kafkaGroup")
     val kafkaThread = setting.getInt("kafkaThread")
-    val conf = new SparkConf().setMaster("local[3]").setAppName(appName)
+    val master = setting.getString("sparkMaster")
+    val conf = new SparkConf().setMaster(master).setAppName(appName)
     val streamContext = new StreamingContext(conf, Milliseconds(processInterval))
     streamContext.sparkContext.setLogLevel(logLevel)
     val sc = streamContext.sparkContext
