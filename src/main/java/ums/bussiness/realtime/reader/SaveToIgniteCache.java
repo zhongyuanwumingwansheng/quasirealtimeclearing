@@ -39,7 +39,7 @@ public class SaveToIgniteCache {
         //ipFinder.setAddresses(Arrays.asList("127.0.0.1", "172.17.1.144", "172.17.1.145", "172.17.1.146:47500..47509"));
         spi.setIpFinder(ipFinder);
         IgniteConfiguration cfg = new IgniteConfiguration();
-        cfg.setClientMode(true);
+        //cfg.setClientMode(true);
         cfg.setDiscoverySpi(spi);
         ignite = Ignition.start(cfg);
     }
