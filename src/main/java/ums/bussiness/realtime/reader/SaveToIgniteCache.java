@@ -1,4 +1,5 @@
 package ums.bussiness.realtime.reader;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.ignite.Ignite;
@@ -21,6 +22,7 @@ import java.util.List;
  * Created by zhaikaixuan on 11/08/2017.
  */
 public class SaveToIgniteCache {
+
     private static Config setting = ConfigFactory.load();
     /*
     public IgniteCache<String, BmsStInfo> bmsStInfoCache = null;
@@ -46,36 +48,9 @@ public class SaveToIgniteCache {
 
     public void parseTableAndSave2Ignite(){
         try {
-            //read bmsStInfo
-            FileInputStream bmsStInfoFile = new FileInputStream(setting.getString("BmsStInfo.BmsStInfoLoc"));
-            //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
-            InputStreamReader bmsStInfoinputFileReader = new InputStreamReader(bmsStInfoFile, setting.getString("coding"));
-            BufferedReader bmsStInforeader = new BufferedReader(bmsStInfoinputFileReader);
-            String tempString;
-            // 一次读入一行，直到读入null为文件结束
-            while ((tempString = bmsStInforeader.readLine()) != null) {
-                String[] splitColumns = tempString.trim().split("\\|");
-                System.out.println(splitColumns[setting.getInt("BmsStInfo.merNoIndex")]);
-                BmsStInfo item = new BmsStInfo("",
-                        splitColumns[setting.getInt("BmsStInfo.merNoIndex")],
-                        splitColumns[setting.getInt("BmsStInfo.mapMainIndex")],
-                        Integer.parseInt(splitColumns[setting.getInt("BmsStInfo.apptypeidIndex")]),
-                        splitColumns[setting.getInt("BmsStInfo.creditCalTypeIndex")],
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditCalcRateIndex")]),
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditCalAmtIndex")]),
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditMinAmtIndex")]),
-                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditMaxAmtIndex")]));
-                String keyValue = splitColumns[0] + splitColumns[1];
-                CacheConfiguration<String, BmsStInfo> bmsStInfoCfg = new CacheConfiguration<>();
-                bmsStInfoCfg.setIndexedTypes(String.class, BmsStInfo.class);
-                bmsStInfoCfg.setCacheMode(CacheMode.REPLICATED);
-                bmsStInfoCfg.setName("BmsStInfo");
-                IgniteCache<String, BmsStInfo> bmsStInfoCache = ignite.getOrCreateCache(bmsStInfoCfg);
-                bmsStInfoCache.put(keyValue, item);
-            }
-            bmsStInforeader.close();
-
+            String tempString = "";
             //read sysGroupItemInfo
+            System.out.println("Begin Read sysGroupItemInfo");
             FileInputStream sysGroupItemInfoFile = new FileInputStream(setting.getString("SysGroupItemInfo.SysGroupItemInfoLoc"));
             InputStreamReader sysGroupItemInfoinputFileReader = new InputStreamReader(sysGroupItemInfoFile, setting.getString("coding"));
             BufferedReader sysGroupItemInforeader = new BufferedReader(sysGroupItemInfoinputFileReader);
@@ -100,11 +75,13 @@ public class SaveToIgniteCache {
                 sysGroupItemInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysGroupItemInfoCfg.setName("SysGroupItemInfo");
                 IgniteCache<String, SysGroupItemInfo> sysGroupItemInfoCache = ignite.getOrCreateCache(sysGroupItemInfoCfg);
+                System.out.println("SysGroupItemInfo:  " + keyValue);
                 sysGroupItemInfoCache.put(keyValue, item);
             }
             sysGroupItemInforeader.close();
 
             //read sysTxnCdInfo
+            System.out.println("Begin Read sysTxnCdInfo");
             FileInputStream sysTxnCdInfoFile = new FileInputStream(setting.getString("SysTxnCdInfo.SysTxnCdInfoLoc"));
             //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
             InputStreamReader sysTxnCdInfoinputFileReader = new InputStreamReader(sysTxnCdInfoFile, setting.getString("coding"));
@@ -168,18 +145,19 @@ public class SaveToIgniteCache {
                             "",//splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
                             "");//splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
                 }
-                System.out.println(item.getTxnKey());
                 String keyValue = splitColumns[0];
                 CacheConfiguration<String, SysTxnCdInfo> sysTxnCdInfoCfg = new CacheConfiguration<>();
                 sysTxnCdInfoCfg.setIndexedTypes(String.class, SysTxnCdInfo.class);
                 sysTxnCdInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysTxnCdInfoCfg.setName("SysTxnCdInfo");
                 IgniteCache<String, SysTxnCdInfo> sysTxnCdInfoCache = ignite.getOrCreateCache(sysTxnCdInfoCfg);
+                System.out.println("SysTxnCdInfo:  " + keyValue);
                 sysTxnCdInfoCache.put(keyValue, item);
             }
             sysTxnCdInforeader.close();
 
             //read sysMapItemInfo
+            System.out.println("Begin Read sysMapItemInfo");
             FileInputStream sysMapItemInfoFile = new FileInputStream(setting.getString("SysMapItemInfo.SysMapItemInfoLoc"));
             //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
             InputStreamReader sysMapItemInfoinputFileReader = new InputStreamReader(sysMapItemInfoFile, setting.getString("coding"));
@@ -197,10 +175,42 @@ public class SaveToIgniteCache {
                 sysMapItemInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysMapItemInfoCfg.setName("SysMapItemInfo");
                 IgniteCache<String, SysMapItemInfo> sysMapItemInfoCache = ignite.getOrCreateCache(sysMapItemInfoCfg);
+                System.out.println("SysMapItemInfo:  " + keyValue);
                 sysMapItemInfoCache.put(keyValue, item);
             }
             sysMapItemInforeader.close();
-        } catch (IOException e) {
+
+
+            //read bmsStInfo
+            System.out.println("Begin Read bmsStInfo");
+            FileInputStream bmsStInfoFile = new FileInputStream(setting.getString("BmsStInfo.BmsStInfoLoc"));
+            //inputFileReader = new InputStreamReader(file, setting.getString("coding"));
+            InputStreamReader bmsStInfoinputFileReader = new InputStreamReader(bmsStInfoFile, setting.getString("coding"));
+            BufferedReader bmsStInforeader = new BufferedReader(bmsStInfoinputFileReader);
+          // 一次读入一行，直到读入null为文件结束
+            while ((tempString = bmsStInforeader.readLine()) != null) {
+                String[] splitColumns = tempString.trim().split("\\|");
+                System.out.println(splitColumns[setting.getInt("BmsStInfo.merNoIndex")]);
+                BmsStInfo item = new BmsStInfo("",
+                        splitColumns[setting.getInt("BmsStInfo.merNoIndex")],
+                        splitColumns[setting.getInt("BmsStInfo.mapMainIndex")],
+                        Integer.parseInt(splitColumns[setting.getInt("BmsStInfo.apptypeidIndex")]),
+                        splitColumns[setting.getInt("BmsStInfo.creditCalTypeIndex")],
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditCalcRateIndex")]),
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditCalAmtIndex")]),
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditMinAmtIndex")]),
+                        Double.parseDouble(splitColumns[setting.getInt("BmsStInfo.creditMaxAmtIndex")]));
+                String keyValue = splitColumns[0] + splitColumns[1];
+                CacheConfiguration<String, BmsStInfo> bmsStInfoCfg = new CacheConfiguration<>();
+                bmsStInfoCfg.setIndexedTypes(String.class, BmsStInfo.class);
+                bmsStInfoCfg.setCacheMode(CacheMode.REPLICATED);
+                bmsStInfoCfg.setName("BmsStInfo");
+                IgniteCache<String, BmsStInfo> bmsStInfoCache = ignite.getOrCreateCache(bmsStInfoCfg);
+                System.out.println("BmsStInfo:  " + keyValue);
+                bmsStInfoCache.put(keyValue, item);
+            }
+            bmsStInforeader.close();
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }

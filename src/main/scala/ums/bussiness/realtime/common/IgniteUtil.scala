@@ -31,16 +31,14 @@ object IgniteUtil extends Serializable {
   var ignite: Ignite = null
   var igniteUtil: IgniteUtil = null
 
-  def apply(): IgniteUtil = {
-    //    igniteConfiguration = new IgniteConfiguration
-    //    ignite = Ignition.start(igniteConfiguration)
-    if (igniteUtil == null) {
+//  def apply(): IgniteUtil = {
+//    if (igniteUtil == null) {
 //      igniteConfiguration.setClientMode(true)
-      ignite = Ignition.start(igniteConfiguration)
-      igniteUtil = new IgniteUtil(ignite)
-    }
-    igniteUtil
-  }
+//      ignite = Ignition.start(igniteConfiguration)
+//      igniteUtil = new IgniteUtil(ignite)
+//    }
+//    igniteUtil
+//  }
 
   def apply(setting: Config): Ignite = {
     //    igniteConfiguration = new IgniteConfiguration
@@ -48,31 +46,29 @@ object IgniteUtil extends Serializable {
     if (ignite == null) {
       val memoryConfiguration = new MemoryConfiguration
       igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
-      //igniteConfiguration.setMemoryConfiguration(memoryConfiguration)
       val spi: TcpDiscoverySpi = new TcpDiscoverySpi
       val ipFinder: TcpDiscoveryVmIpFinder = new TcpDiscoveryVmIpFinder
+      print("**********************************" + setting.getString("tcpDiscoveryIpList"));
       ipFinder.setAddresses(setting.getString("tcpDiscoveryIpList").split(",").toSeq.asJavaCollection)
-      //ipFinder.setAddresses(Arrays.asList("127.0.0.1", "172.17.1.144", "172.17.1.145", "172.17.1.146:47500..47509"));
       spi.setIpFinder(ipFinder)
       igniteConfiguration.setDiscoverySpi(spi)
       igniteConfiguration.setClientMode(true)
-      //igniteConfiguration = new IgniteConfiguration
       ignite = Ignition.start(igniteConfiguration)
     }
     ignite
   }
   def main(args: Array[String]): Unit = {
-    //{"MSG_TYPE": "0200","PROC_CODE": "000000","SER_CONCODE": "00","TXN_AMT": "297.00","TID": "20222636","MID": "898510158120962","TRAN_STATUS": "1","RESP_CODE": "00"}
-
-        val igniteUtil = IgniteUtil()
-        System.out.println("ignite is begin")
-        for (i <- 0 until 10) {
-          println("record : " + i)
-          igniteUtil.putCache("cacheName","key" + i,new UlinkNormal())
-      }
-        for (i <- 0 until 10) {
-          val result = igniteUtil.queryCache("cacheName","key" + i,new UlinkNormal())
-          System.out.println(result)
-        }
-    }
+    //
+    //        val igniteUtil = IgniteUtil()
+    //        System.out.println("ignite is begin")
+    //        for (i <- 0 until 10) {
+    //          println("record : " + i)
+    //          igniteUtil.putCache("cacheName","key" + i,new UlinkNormal())
+    //      }
+    //        for (i <- 0 until 10) {
+    //          val result = igniteUtil.queryCache("cacheName","key" + i,new UlinkNormal())
+    //          System.out.println(result)
+    //        }
+    //    }
+  }
 }
