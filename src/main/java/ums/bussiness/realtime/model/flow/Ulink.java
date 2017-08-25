@@ -42,10 +42,40 @@ public class Ulink {
      */
     private boolean noBmsStlInfo;
     /**
+     * 交易对应的门店号
+     */
+    private String storeNo;
+    /**
+     * 按终端入账对应的mapResult
+     */
+    private String mapResultFromTerminal;
+    /**
+     * 按流水信息对应的mapResult
+     */
+    private String mapResultFromRSV;
+
+    /**
      * 支持的商户计费类型"10"||"11", false 表示不是支持的这两种计费类型
      */
     private boolean supportedCreditCalcType;
 
+    public String getMapResultFromTerminal(){
+        return mapResultFromTerminal;
+    }
+
+    public void setMapResultFromTerminal(String mapResultFromTerminal) {this.mapResultFromTerminal = mapResultFromTerminal; }
+
+    public String getMapResultFromRSV(){
+        return mapResultFromRSV;
+    }
+
+    public void setMapResultFromRSV(String mapResultFromRSV) {this.mapResultFromRSV = mapResultFromRSV; }
+
+    public String getStoreNo(){
+        return storeNo;
+    }
+
+    public void setStoreNo(String storeNo) {this.storeNo = storeNo; }
 
     public int getDcFlag() {
         return dcFlag;
@@ -112,6 +142,9 @@ public class Ulink {
         this.uTime = new Date();
         this.noBmsStlInfo = ValueDefault.BOOLEAN_DEFAULT;
         this.supportedCreditCalcType = ValueDefault.BOOLEAN_DEFAULT;
+        this.storeNo = ValueDefault.STRING_DEFAULT;
+        this.mapResultFromTerminal = ValueDefault.STRING_DEFAULT;
+        this.mapResultFromRSV = ValueDefault.STRING_DEFAULT;
     }
 
     public Ulink(int dcFlag, String clearingFlag, int merId, String groupId, String merNo, Date uTime) {

@@ -9,9 +9,13 @@ import org.apache.ignite.cache.affinity.AffinityKey;
 import org.apache.ignite.cache.query.SqlQuery;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.spi.discovery.DiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import org.junit.Test;
 import ums.bussiness.realtime.model.table.BmsStInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class IgniteTest {
@@ -19,6 +23,13 @@ public class IgniteTest {
     public static void main(String args[]){
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
 //        igniteConfiguration.setClientMode(true);
+        TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
+        List arrayList = new ArrayList<String>();
+        arrayList.add("127.0.0.1:47600..47609");
+        ipFinder.setAddresses(arrayList);
+        TcpDiscoverySpi discoverySpi = new TcpDiscoverySpi();
+        discoverySpi.setIpFinder(ipFinder);
+        igniteConfiguration.setDiscoverySpi(discoverySpi);
         Ignite ignite = Ignition.start(igniteConfiguration);
         CacheConfiguration<String, BmsStInfo> bmsStInfoCfg = new CacheConfiguration<>();
         bmsStInfoCfg.setIndexedTypes(String.class,BmsStInfo.class);

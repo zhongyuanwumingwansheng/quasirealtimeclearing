@@ -32,7 +32,7 @@ public class BmsStInfo implements Serializable{
     /**
      * 多应用类型
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private int apptypeId;
     /**
      * 计费方式

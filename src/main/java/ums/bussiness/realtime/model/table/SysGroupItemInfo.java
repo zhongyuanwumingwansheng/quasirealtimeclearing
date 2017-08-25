@@ -41,12 +41,12 @@ public class SysGroupItemInfo implements Serializable{
     /**
      * 分组类型ID
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String groupTypeId;
     /**
      * 分组成员
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String item;
     /**
      * 生效日期

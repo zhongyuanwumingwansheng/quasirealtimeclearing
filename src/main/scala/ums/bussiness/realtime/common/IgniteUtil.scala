@@ -2,12 +2,13 @@ package ums.bussiness.realtime.common
 
 import com.typesafe.config.Config
 import org.apache.ignite.cache.query.SqlQuery
-import org.apache.ignite.configuration.{IgniteConfiguration, MemoryConfiguration}
+import org.apache.ignite.configuration.{ConnectorConfiguration, IgniteConfiguration, MemoryConfiguration}
 import org.apache.ignite.{Ignite, Ignition}
 import org.apache.ignite.scalar.scalar._
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder
 import ums.bussiness.realtime.model.flow.UlinkNormal
+
 import scala.collection.JavaConverters._
 
 class IgniteUtil(ignite:Ignite) extends Serializable{
@@ -53,6 +54,12 @@ object IgniteUtil extends Serializable {
       spi.setIpFinder(ipFinder)
       igniteConfiguration.setDiscoverySpi(spi)
       igniteConfiguration.setClientMode(true)
+//      val connectorConfiguration = new ConnectorConfiguration()
+//      connectorConfiguration.setThreadPoolSize(1000)
+//      connectorConfiguration.setSendQueueLimit(1000)
+//      connectorConfiguration.setNoDelay(true)
+//      connectorConfiguration.setSelectorCount(1000)
+//      igniteConfiguration.setConnectorConfiguration(connectorConfiguration)
       ignite = Ignition.start(igniteConfiguration)
     }
     ignite

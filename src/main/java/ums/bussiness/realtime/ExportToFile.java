@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Arrays;
+
 /**
  * Created by zhaikaixuan on 23/08/2017.
  */
@@ -33,12 +35,11 @@ public class ExportToFile {
             //igniteConfiguration.setMemoryConfiguration(memoryConfiguration);
             TcpDiscoverySpi spi = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
-            ipFinder.setAddresses(java.util.Arrays.asList(setting.getString("tcpDiscoveryIpList").split(",")));
-            //ipFinder.setAddresses(Arrays.asList("127.0.0.1", "172.17.1.144", "172.17.1.145", "172.17.1.146:47500..47509"));
+//            ipFinder.setAddresses(java.util.Arrays.asList(setting.getString("tcpDiscoveryIpList").split(",")));
+            ipFinder.setAddresses(Arrays.asList("172.30.252.210:47600..47609"));
             spi.setIpFinder(ipFinder);
-            //igniteConfiguration.setDiscoverySpi(spi);
-            //igniteConfiguration.setClientMode(true);
-            //igniteConfiguration = new IgniteConfiguration
+            igniteConfiguration.setDiscoverySpi(spi);
+            igniteConfiguration.setClientMode(true);
             ignite = Ignition.start(igniteConfiguration);
         }
 
@@ -77,10 +78,10 @@ public class ExportToFile {
 
     }
     public static void main(String args[]){
-        String incrementalSummary = "IncrementalSummary";
+//        String incrementalSummary = "IncrementalSummary";
         String normalSummary = "NormalSummary";
         ExportToFile exportToFile = new ExportToFile();
-        exportToFile.export(incrementalSummary);
+//        exportToFile.export(incrementalSummary);
         exportToFile.export(normalSummary);
     }
 }

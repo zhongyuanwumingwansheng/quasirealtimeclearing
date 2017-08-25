@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.configuration.CacheConfiguration;
 import ums.bussiness.realtime.model.table.*;
@@ -38,10 +39,10 @@ public class SaveToIgniteCache {
         TcpDiscoverySpi spi = new TcpDiscoverySpi();
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
         ipFinder.setAddresses(Arrays.asList(setting.getString("tcpDiscoveryIpList").split(",")));
-        //ipFinder.setAddresses(Arrays.asList("127.0.0.1", "172.17.1.144", "172.17.1.145", "172.17.1.146:47500..47509"));
+//        ipFinder.setAddresses(Arrays.asList("172.17.1.146:47600..47509"));
         spi.setIpFinder(ipFinder);
         IgniteConfiguration cfg = new IgniteConfiguration();
-        //cfg.setClientMode(true);
+        cfg.setClientMode(true);
         cfg.setDiscoverySpi(spi);
         ignite = Ignition.start(cfg);
     }
@@ -49,6 +50,7 @@ public class SaveToIgniteCache {
     public void parseTableAndSave2Ignite(){
         try {
             String tempString = "";
+
             //read sysGroupItemInfo
             System.out.println("Begin Read sysGroupItemInfo");
             FileInputStream sysGroupItemInfoFile = new FileInputStream(setting.getString("SysGroupItemInfo.SysGroupItemInfoLoc"));
@@ -74,6 +76,9 @@ public class SaveToIgniteCache {
                 sysGroupItemInfoCfg.setIndexedTypes(String.class, SysGroupItemInfo.class);
                 sysGroupItemInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysGroupItemInfoCfg.setName("SysGroupItemInfo");
+                sysGroupItemInfoCfg.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+//                sysGroupItemInfoCfg.setQueryParallelism(10000);
+//                sysGroupItemInfoCfg.setMaxConcurrentAsyncOperations(10000);
                 IgniteCache<String, SysGroupItemInfo> sysGroupItemInfoCache = ignite.getOrCreateCache(sysGroupItemInfoCfg);
                 System.out.println("SysGroupItemInfo:  " + keyValue);
                 sysGroupItemInfoCache.put(keyValue, item);
@@ -145,16 +150,20 @@ public class SaveToIgniteCache {
                             "",//splitColumns[setting.getInt("SysTxnCdInfo.updDatetimeIndex")],
                             "");//splitColumns[setting.getInt("SysTxnCdInfo.updUserIdIndex")]);
                 }
-                String keyValue = splitColumns[0];
+                String keyValue = item.getTxnKey();
                 CacheConfiguration<String, SysTxnCdInfo> sysTxnCdInfoCfg = new CacheConfiguration<>();
                 sysTxnCdInfoCfg.setIndexedTypes(String.class, SysTxnCdInfo.class);
                 sysTxnCdInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysTxnCdInfoCfg.setName("SysTxnCdInfo");
+                sysTxnCdInfoCfg.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+//                sysTxnCdInfoCfg.setQueryParallelism(10000);
+//                sysTxnCdInfoCfg.setMaxConcurrentAsyncOperations(10000);
                 IgniteCache<String, SysTxnCdInfo> sysTxnCdInfoCache = ignite.getOrCreateCache(sysTxnCdInfoCfg);
                 System.out.println("SysTxnCdInfo:  " + keyValue);
                 sysTxnCdInfoCache.put(keyValue, item);
             }
             sysTxnCdInforeader.close();
+
 
             //read sysMapItemInfo
             System.out.println("Begin Read sysMapItemInfo");
@@ -174,6 +183,9 @@ public class SaveToIgniteCache {
                 sysMapItemInfoCfg.setIndexedTypes(String.class, SysMapItemInfo.class);
                 sysMapItemInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 sysMapItemInfoCfg.setName("SysMapItemInfo");
+                sysMapItemInfoCfg.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+//                sysMapItemInfoCfg.setQueryParallelism(10000);
+//                sysMapItemInfoCfg.setMaxConcurrentAsyncOperations(10000);
                 IgniteCache<String, SysMapItemInfo> sysMapItemInfoCache = ignite.getOrCreateCache(sysMapItemInfoCfg);
                 System.out.println("SysMapItemInfo:  " + keyValue);
                 sysMapItemInfoCache.put(keyValue, item);
@@ -205,15 +217,20 @@ public class SaveToIgniteCache {
                 bmsStInfoCfg.setIndexedTypes(String.class, BmsStInfo.class);
                 bmsStInfoCfg.setCacheMode(CacheMode.REPLICATED);
                 bmsStInfoCfg.setName("BmsStInfo");
+                bmsStInfoCfg.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+//                bmsStInfoCfg.setQueryParallelism(10000);
+//                bmsStInfoCfg.setMaxConcurrentAsyncOperations(10000);
                 IgniteCache<String, BmsStInfo> bmsStInfoCache = ignite.getOrCreateCache(bmsStInfoCfg);
                 System.out.println("BmsStInfo:  " + keyValue);
                 bmsStInfoCache.put(keyValue, item);
             }
             bmsStInforeader.close();
+
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
+
     }
     public static void main(String args[]){
         SaveToIgniteCache cache = new SaveToIgniteCache();

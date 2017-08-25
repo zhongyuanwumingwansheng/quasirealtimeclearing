@@ -57,7 +57,8 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
     streamContext.sparkContext.setLogLevel(logLevel)
     val sc = streamContext.sparkContext
     sc.setLogLevel("ERROR")
-    val topicsSet: Set[String] = kafkaTopics.split("ULinkIncre").toSet
+    val topicsSet: Set[String] = Set[String]("ULinkIncre")
+    //val topicsSet: Set[String] = kafkaTopics.split("ULinkIncre").toSet
     val kafkaParams: Map[String, String] = Map[String, String](
       "metadata.broker.list" -> brokers,
       "group.id" -> kafkaGroup,
@@ -75,14 +76,11 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       line => {
         val ulinkIncre = new UlinkIncre()
         try {
-          val JObject(message) = parse(line).asInstanceOf[JObject]
+          val formatLine = line.replaceAll("\":null\"", ":\"\"")
+          val JObject(message) = parse(formatLine).asInstanceOf[JObject]
           message.map(keyValue =>
             keyValue._1 match {
               case "PLT_SSN" => ulinkIncre.setPltSsn(keyValue._2.extract[String])
-              case "TRANS_CD_PAY" => ulinkIncre.setTransCdPay(keyValue._2.extract[String])
-              case "PAY_ST" => ulinkIncre.setPaySt(keyValue._2.extract[String])
-              case "TRANS_ST_RSVL" => ulinkIncre.setTransStRsvl(keyValue._2.extract[String])
-              case "ROUT_INST_ID_CD" => ulinkIncre.setRoutInstIdCd(keyValue._2.extract[String])
               case "TRANS_ST" => ulinkIncre.setTransSt(keyValue._2.extract[String])
               case "TRANS_ST_RSVL" => ulinkIncre.setTransStRsvl(keyValue._2.extract[String])
               case "PROD_STYLE" => ulinkIncre.setProdStyle(keyValue._2.extract[String])
@@ -91,9 +89,17 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
               case "TERM_ID_PAY" => ulinkIncre.setTermIdPay(keyValue._2.extract[String])
               case "TRANS_CD_PAY" => ulinkIncre.setTransCdPay(keyValue._2.extract[String])
               case "PAY_ST" => ulinkIncre.setPaySt(keyValue._2.extract[String])
-              case "TRANS_AMT" => ulinkIncre.setTransAmt(keyValue._2.extract[String].toDouble)
+              case "TRANS_AMT" => {
+                if (keyValue._2.extract[String] != ""){
+                  ulinkIncre.setTransAmt(keyValue._2.extract[String].toDouble)
+                }
+              }
               case "RSVD1" => ulinkIncre.setdRsvd1(keyValue._2.extract[String])
-              case "RSVD6" => ulinkIncre.setdRsvd6(keyValue._2.extract[String].toInt)
+              case "RSVD6" => {
+                if (keyValue._2.extract[String] != ""){
+                  ulinkIncre.setdRsvd6(keyValue._2.extract[String].toInt)
+                }
+              }
               case _ =>
             }
           )
@@ -103,6 +109,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         ulinkIncre
       }
     }
+    //records.print()
     val filterRecords = records.mapPartitions {
       val filterRecords = new ArrayBuffer[UlinkIncre]
 
@@ -119,10 +126,13 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           //println(record.toString)
         }
         //        val sql = "(UlinkNormal.procCode != 01 and UlinkNormal.procCode != 02)"
-        val sql = "(UlinkIncre.transCdPay = \'02S221X1\' or UlinkIncre.transCdPay = \'02V523X1\'" +
+        val sql = "((UlinkIncre.transCdPay = \'02S221X1\' or UlinkIncre.transCdPay = \'02V523X1\'" +
           " or UlinkIncre.transCdPay = \'07S30609\') and UlinkIncre.paySt = \'0\' and UlinkIncre.transStRsvl = \'0\' " +
           "and UlinkIncre.routInstIdCd = \'3748020000\' and UlinkIncre.transSt = \'0\' " +
-          "and UlinkIncre.prodStyle = \'51A2\' and UlinkIncre.dRsvd6 = \'1001\'"
+          "and UlinkIncre.prodStyle = \'51A2\' and UlinkIncre.dRsvd6 = \'1001\') or" +
+          "(UlinkIncre.transSt = \'0\' and UlinkIncre.transStRsvl = \'0\' and UlinkIncre.paySt = \'0\'" +
+          "and UlinkIncre.prodStyle = \'51A2\' and (UlinkIncre.transCdPay = \'02S221X0\' or UlinkIncre.transCdPay = \'02V523X0\' or UlinkIncre.transCdPay = \'02R222X0\'" +
+          "or (UlinkIncre.transCdPay = \'07S30609\' and UlinkIncre.dRsvd6 = \'1002\')))"
         val result = cache$[String, UlinkIncre](cacheName).get.sql(sql).getAll
         val result_iterator = result.iterator()
         while (result_iterator.hasNext) {
@@ -139,9 +149,9 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       val ignite = IgniteUtil(setting)
       addCacheConfig(ignite)
       val transcd = record.getTransCdPay
-      val query_sql = "SysTxnCdInfo.txnKey = \'" + transcd + "\'"
+      val query_sql = s"SysTxnCdInfo.txnKey = \'${transcd}\'"
       val queryResult = cache$[String, SysTxnCdInfo](SYS_TXN_CODE_INFO_CACHE_NAME).get.sql(query_sql).getAll
-//      println("SysTxnCdInfo  has " + queryResult.size() + " result by the txnKey = " + transcd)
+      println("SysTxnCdInfo  has " + queryResult.size() + " result by the txnKey = " + transcd)
       if (queryResult.size > 0) {
         val filterFlag = queryResult.get(0).getValue.getSettFlg match {
           case "0" | "7" | "8" | "E" | "F" | "H" | "N" | "Z" => false
@@ -159,7 +169,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
       val query_group_sql = s"SysGroupItemInfo.item = \'${record.getMchntIdPay}\'";
       val queryResult = cache$[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME).get.sql(query_group_sql).getAll
-//      println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql ： " + query_group_sql)
+      println("SysGroupItemInfo  has " + queryResult.size() + " result by the query_group_sql ： " + query_group_sql)
       var append_groupId: List[String] = List()
       val resultIterator = queryResult.iterator()
       while (resultIterator.hasNext) {
@@ -169,15 +179,16 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       record.setGroupId(append_groupId.mkString(","))
 
       //按终端入账
-      var query_mer_filed = record.getMchntIdPay + "," + record.getTermIdPay
-      var query_mer_sql = s"SysMapItemInfo.srcItem = \'${query_mer_filed}\' and SysMapItemInfo.typeId = \'1\'";
-      var queryMerResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_mer_sql).getAll
-//      println("SysMapItemInfo  has " + queryMerResult.size() + " result by the query_mer_sql = " + query_mer_sql)
+      val query_mer_filed = record.getMchntIdPay + "," + record.getTermIdPay
+      val query_mer_sql = s"SysMapItemInfo.srcItem = \'${query_mer_filed}\' and SysMapItemInfo.typeId = \'1\'";
+      val queryMerResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_mer_sql).getAll
+      println("SysMapItemInfo  has " + queryMerResult.size() + " result by the query_mer_sql = " + query_mer_sql)
       if (queryMerResult.size > 0) {
         val mapId = queryMerResult.get(0).getValue.getMapId
         val mapResult = queryMerResult.get(0).getValue.getMapResult
         if (mapResult != ""){
           record.setMerNo(mapResult)
+          record.setMapResultFromTerminal(mapResult)
         }
       }
 
@@ -188,14 +199,16 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         {
           //获取门店号
           val storeNo = record.getdRsvd1().substring(7, 50)
+          record.setStoreNo(storeNo)
           val query_merchant_sql = s"srcItem = \'${storeNo}\' and typeId = \'1068\'";
           val queryMerchantResult = cache$[String, SysMapItemInfo](SYS_MAP_ITEM_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
-//          println("SysMapItemInfo  has " + queryResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
+          println("SysMapItemInfo  has " + queryResult.size() + " result by the query_merchant_sql = " + query_merchant_sql)
           if (queryMerResult.size > 0) {
             val mapId = queryMerchantResult.get(0).getValue.getMapId
             val mapResult = queryMerchantResult.get(0).getValue.getMapResult
             if (mapResult != "") {
               record.setMerNo(mapResult)
+              record.setMapResultFromRSV(mapResult)
             }
           }
         }
@@ -206,6 +219,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       }
       record
     }
+    mapRecords.print()
     val saveRecords = mapRecords.map { record =>
       //手续费计算
       //商户档案信息
@@ -214,7 +228,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
 //        val cfg = new CacheConfiguration(BMS_STL_INFO_CACHE_NAME)
         //      cfg.setSqlFunctionClasses(classOf[IgniteFunction])
         //todo order by decode(trim(mapp_main),'1',1,2), decode(apptype_id, 1,1,86,2,74,3,18,4,39,5,40,6,68,7)
-        val query_merchant_sql = s"select * from BmsStInfo where merNo = \'${record.getMerNo}\' order by decode(trim(mappMain),\'1\',1,2), decode(apptypeId,1,1,86,2,74,3,18,4,39,5,40,6,68,7)"
+        val query_merchant_sql = s"select * from BmsStInfo where merNo = \'${record.getMchntIdPay}\' order by decode(trim(mappMain),\'1\',1,2), decode(apptypeId,1,1,86,2,74,3,18,4,39,5,40,6,68,7)"
         val queryMerchantResult = cache$[String, BmsStInfo](BMS_STL_INFO_CACHE_NAME).get.sql(query_merchant_sql).getAll
         //当前计算手续费
         var current_charge: Double = 0
@@ -258,6 +272,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
 
             today_history_amout = today_history_amout - current_trans_amount + current_charge
             cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+            println("cache item " + record.getMerNo)
           }
           else if (record.getDcFlag == -1){ //-1为借记，正交易
             //根据入账商户ID汇总可清算金额，poc没有商户id，用商户号汇总
@@ -265,6 +280,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
             today_history_amout = cache$[String, Double](SUMMARY).get.get(record.getMerNo)
             today_history_amout = today_history_amout + current_trans_amount - current_charge
             cache$[String, Double](SUMMARY).get.put(record.getMerNo, today_history_amout)
+            println("cache item " + record.getMerNo)
           }
           else {
             println("dcFlag error is not 1|-1: " + record)
@@ -273,7 +289,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       }
       record
     }
-
+    //saveRecords.print()
     saveRecords.foreachRDD { rdd =>
       rdd.foreachPartition { iter =>
         val hbaseUtil = HbaseUtil(setting)
@@ -297,6 +313,12 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dRsvd6"), Bytes.toBytes(record.getdRsvd6()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("transAmt"), Bytes.toBytes(record.getTransAmt()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dcFlag"), Bytes.toBytes(record.getDcFlag()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("merNo"), Bytes.toBytes(record.getMerNo()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("groupId"), Bytes.toBytes(record.getGroupId()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("storeNo"), Bytes.toBytes(record.getStoreNo()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromTerminal"), Bytes.toBytes(record.getMapResultFromTerminal()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromRSV"), Bytes.toBytes(record.getMapResultFromRSV()))
           puts.add(put)
         }
         val tableInterface = hbaseUtil.getConnection.getTable(TableName.valueOf(HISTORY_RECORD_TABLE))

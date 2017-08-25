@@ -24,12 +24,12 @@ public class UlinkNormal extends Ulink implements Serializable {
     /**
      * 交易应答码
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String respCode = null;
     /**
      * 交易应答状态
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String tranStat = null;
 
     /**
@@ -45,14 +45,14 @@ public class UlinkNormal extends Ulink implements Serializable {
     /**
      * 无
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String serConcode = null;
 
 
     /**
      * 消息类型
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String msgType = null;
 
 
@@ -64,19 +64,19 @@ public class UlinkNormal extends Ulink implements Serializable {
     /**
      * 交易金额,单位元
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private double txnAmt = 0;
 
     /**
      * 手续费,单位分
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private double exchange;
 
     /**
      * REV4
      */
-    @QuerySqlField(index = false)
+    @QuerySqlField(index = true)
     private String RSV4;
 
     public UlinkNormal() {
@@ -109,7 +109,11 @@ public class UlinkNormal extends Ulink implements Serializable {
     }
 
     public String toString(){
-        return "UlinkNormal: " + "|id:" + id + "|procCode:" + procCode + "|respCode:" + respCode + "|tranStat:" + tranStat + "|mId:" + mId + "|tId:" + tId + "|serConcode:" + serConcode + "|msgType:" + msgType + "|filterFlag:" + filterFlag + "|txnAmt:" + txnAmt + "|exchange:" + exchange;
+        return "UlinkNormal: " + "|id:" + id + "|procCode:" + procCode + "|respCode:" + respCode + "|tranStat:" + tranStat + "|mId:" + mId + "|tId:" + tId + "|serConcode:" + serConcode + "|msgType:" + msgType + "|filterFlag:" + filterFlag + "|txnAmt:" + txnAmt + "|exchange:" + exchange +
+                "|dcFlag:" + this.getDcFlag() +
+                "|storeNo:" + this.getStoreNo() +
+                "|mapResultFromTerminal:" + this.getMapResultFromTerminal() +
+                "|mapResultFromRSV:" + this.getMapResultFromRSV();
     }
     public String getProcCode() {
         return procCode;

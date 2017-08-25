@@ -222,9 +222,14 @@ public class UlinkIncre extends Ulink implements Serializable{
     public boolean getFilterFlag() {return filterFlag; }
 
     public String toString(){
-        return "UlinkNormal: " + "|paySt:" + paySt + "|transCdPay:" + transCdPay + "|paySt:" + paySt + "|transStRsvl:" + transStRsvl +
+        return "UlinkIncre: " + "|paySt:" + paySt + "|transCdPay:" + transCdPay + "|paySt:" + paySt + "|transStRsvl:" + transStRsvl +
                 "|routInstIdCd:" + routInstIdCd + "|transSt:" + transSt + "|prodStyle:" + prodStyle + "|dRsvd1:" +
                 dRsvd1 + "|filterFlag:" + filterFlag + "|dRsvd6:" + dRsvd6 + "|exchange:" + exchange +
-                "|mchntIdPay:" + mchntIdPay + "|transAmt:" + transAmt;
+                "|mchntIdPay:" + mchntIdPay + "|transAmt:" + transAmt +
+                "|RSV1:" + dRsvd1 +
+                "|dcFlag:" + this.getDcFlag() +
+                "|storeNo:" + this.getStoreNo() +
+                "|mapResultFromTerminal:" + this.getMapResultFromTerminal() +
+                "|mapResultFromRSV:" + this.getMapResultFromRSV();
     }
 }
