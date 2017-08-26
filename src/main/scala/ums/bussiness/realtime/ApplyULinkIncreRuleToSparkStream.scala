@@ -308,7 +308,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("routInstIdCd"), Bytes.toBytes(record.getRoutInstIdCd()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("transSt"), Bytes.toBytes(record.getTransSt()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("termIdPay"), Bytes.toBytes(record.getTermIdPay()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag().toString))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("prodStyle"), Bytes.toBytes(record.getProdStyle()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dRsvd6"), Bytes.toBytes(record.getdRsvd6()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("transAmt"), Bytes.toBytes(record.getTransAmt().toString))
