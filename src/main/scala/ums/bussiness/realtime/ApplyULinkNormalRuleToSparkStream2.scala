@@ -346,7 +346,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tranStat"), Bytes.toBytes(record.getTranStat()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("serConcode"), Bytes.toBytes(record.getSerConcode()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("msgType"), Bytes.toBytes(record.getMsgType()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag().toString))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("RSV4"), Bytes.toBytes(record.getRSV4()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dcFlag"), Bytes.toBytes(record.getDcFlag().toString))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("merNo"), Bytes.toBytes(record.getMerNo()))

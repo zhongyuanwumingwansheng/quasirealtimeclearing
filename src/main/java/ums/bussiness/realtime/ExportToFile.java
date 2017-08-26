@@ -35,8 +35,8 @@ public class ExportToFile {
             //igniteConfiguration.setMemoryConfiguration(memoryConfiguration);
             TcpDiscoverySpi spi = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
-//            ipFinder.setAddresses(java.util.Arrays.asList(setting.getString("tcpDiscoveryIpList").split(",")));
-            ipFinder.setAddresses(Arrays.asList("172.30.252.210:47600..47609"));
+            ipFinder.setAddresses(java.util.Arrays.asList(setting.getString("tcpDiscoveryIpList").split(",")));
+            //ipFinder.setAddresses(Arrays.asList("172.30.252.210:47600..47609"));
             spi.setIpFinder(ipFinder);
             igniteConfiguration.setDiscoverySpi(spi);
             igniteConfiguration.setClientMode(true);
