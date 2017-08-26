@@ -319,6 +319,8 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("storeNo"), Bytes.toBytes(record.getStoreNo()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromTerminal"), Bytes.toBytes(record.getMapResultFromTerminal()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromRSV"), Bytes.toBytes(record.getMapResultFromRSV()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("noBmsStlInfo"), Bytes.toBytes(record.getNoBmsStlInfo().toString))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("supportedCreditCalcType"), Bytes.toBytes(record.getSupportedCreditCalcType().toString))
           puts.add(put)
         }
         println("当前系统时间： " + new Date)

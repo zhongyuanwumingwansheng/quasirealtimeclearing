@@ -354,6 +354,8 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("storeNo"), Bytes.toBytes(record.getStoreNo()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromTerminal"), Bytes.toBytes(record.getMapResultFromTerminal()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromRSV"), Bytes.toBytes(record.getMapResultFromRSV()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("noBmsStlInfo"), Bytes.toBytes(record.getNoBmsStlInfo().toString))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("supportedCreditCalcType"), Bytes.toBytes(record.getSupportedCreditCalcType().toString))
           puts.add(put)
 //          println("add record: mid: " + record.getmId() + "tid: " + record.gettId() + "txnAmt: " + record.getTxnAmt)
         }
