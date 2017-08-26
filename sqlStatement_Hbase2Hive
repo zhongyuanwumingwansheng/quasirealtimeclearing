@@ -1,0 +1,9 @@
+create external table incremental_specifics(merNo_terNo_time string,mchntIdPay string,transCdPay string,paySt string,transStRsvl string,routInstIdCd string,transSt string,termIdPay string,filterFlag string,prodStyle string,dRsvd6 string,transAmt string,exchanges string,dcFlag string,merNo string,groupId string,storeNo string,mapResultFromTerminal string, mapResultFromRSV string) 
+stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+with serdeproperties ("hbase.columns.mapping" = ":key,t:mchntIdPay,t:transCdPay,t:paySt,t:transStRsvl,t:routInstIdCd,t:transSt,t:termIdPay,t:filterFlag,t:prodStyle,t:dRsvd6,t:transAmt,t:exchange,t:dcFlag,t:merNo,t:groupId,t:storeNo,t:mapResultFromTerminal,t:mapResultFromRSV")
+tblproperties("hbase.table.name" = "ulink_incremental_table");
+
+create external table normal_specifics(merNo_terNo_time string,mId string,tId string,txnAmt string,exchanges string,procCode string,respCode string,tranStat string,serConcode string,msgType string,filterFlag string,RSV4 string,dcFlag string,merNo string,groupId string,storeNo string,mapResultFromTerminal string, mapResultFromRSV string) 
+stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+with serdeproperties ("hbase.columns.mapping" = ":key,t:mId,t:tId,t:txnAmt,t:exchange,t:procCode,t:respCode,t:tranStat,t:serConcode,t:msgType,t:filterFlag,t:RSV4,t:dcFlag,t:merNo,t:groupId,t:storeNo,t:mapResultFromTerminal,t:mapResultFromRSV")
+tblproperties("hbase.table.name" = "ulink_normal_table");
