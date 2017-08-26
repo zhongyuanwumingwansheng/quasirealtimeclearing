@@ -108,12 +108,12 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       ulinkNormal
     })
-
+    records.print()
 
     //交易过滤
     val filterRecoders = records.mapPartitions {
       iter =>
-        val start = System.currentTimeMillis()
+//        val start = System.currentTimeMillis()
         val filterRecordsValue = new ArrayBuffer[UlinkNormal]
         val randomString = Math.random().toString
         val cacheName = "normalRecords" + randomString
@@ -143,14 +143,14 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         }
         query.close()
         ignite.cache[String, UlinkNormal](cacheName).destroy()
-        val end = System.currentTimeMillis()
-        println("交易过滤" , end - start,result.size)
+//        val end = System.currentTimeMillis()
+//        println("交易过滤" , end - start,result.size)
         filterRecordsValue.iterator
     }
 
     //交易码转换
     val transRecords = filterRecoders.map { record =>
-      val start = System.currentTimeMillis()
+//      val start = System.currentTimeMillis()
       val ignite = IgniteUtil(setting)
       addCacheConfig(ignite)
       val filed = record.getMsgType + "|" + record.getProcCode + "|" + record.getSerConcode
@@ -170,14 +170,14 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         record.setDcFlag(dcFlag)
       }
       query.close
-      val end = System.currentTimeMillis()
-      println("交易码转换" , end - start,1)
+//      val end = System.currentTimeMillis()
+//      println("交易码转换" , end - start,1)
       record
     }
 
     //清分规则定位与计算
     val mapRecords = transRecords.map { record =>
-      val start = System.currentTimeMillis()
+//      val start = System.currentTimeMillis()
       //清分规则 ID 获取,可能不止一个，所以通过逗号进行拼接
       val query_group_sql = s"SysGroupItemInfo.item = \'${record.getmId}\'";
       var query_group = cache$[String, SysGroupItemInfo](SYS_GROUP_ITEM_INFO_CACHE_NAME).get.sql(query_group_sql)
@@ -192,7 +192,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
       }
       record.setGroupId(append_groupId.mkString(","))
       val end = System.currentTimeMillis()
-      println("清分规则ID获取" , end - start,1)
+//      println("清分规则ID获取" , end - start,1)
       //按终端入账
       val query_mer_filed = record.getmId + "," + record.gettId
       val query_mer_sql = s"SysMapItemInfo.srcItem = \'${query_mer_filed}\' and SysMapItemInfo.typeId = \'1\'";
@@ -208,8 +208,8 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
           record.setMapResultFromTerminal(mapResult)
         }
       }
-      val end_1 = System.currentTimeMillis()
-      println("按终端入账" , end_1 - start,1)
+//      val end_1 = System.currentTimeMillis()
+//      println("按终端入账" , end_1 - start,1)
 
       //根据流水信息映射商户号
       //if (record.getGroupId == "APL") {
@@ -235,8 +235,8 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         }
         else println(record)
       }
-      val end_2 = System.currentTimeMillis()
-      println("映射商户号" , end_2 - start,1)
+//      val end_2 = System.currentTimeMillis()
+//      println("映射商户号" , end_2 - start,1)
       //如果都没有，用mid汇总
       if (record.getMerNo == "") {
         record.setMerNo(record.getmId())
@@ -245,7 +245,7 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
     }
 
     val saveRecords = mapRecords.map { record =>
-      val start = System.currentTimeMillis()
+//      val start = System.currentTimeMillis()
       //手续费计算
       //商户档案信息
       //val storeNo = record.getSerConcode.substring(20, 24)
@@ -321,13 +321,13 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         }
       }
       val end_3 = System.currentTimeMillis()
-      println("手续费计算" , end_3 - start,1)
+//      println("手续费计算" , end_3 - start,1)
       record
     }
 
     saveRecords.foreachRDD { rdd =>
       rdd.foreachPartition{ iter =>
-        val start = System.currentTimeMillis()
+//        val start = System.currentTimeMillis()
         val hbaseUtil = HbaseUtil(setting)
         val cf = "t"
         hbaseUtil.createTable(HISTORY_RECORD_TABLE, cf)
@@ -335,23 +335,20 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
         while (iter.hasNext) {
           val record = iter.next()
           val now = new Date()
-          val rowkey = record.getmId() + record.gettId() + now.getTime.toString
+          val rowkey = record.getId//getmId() + record.gettId() + now.getTime.toString
           val put = new Put(Bytes.toBytes(rowkey))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mId"), Bytes.toBytes(record.getmId()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tId"), Bytes.toBytes(record.gettId()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("txnAmt"), Bytes.toBytes(record.getTxnAmt()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("txnAmt"), Bytes.toBytes(record.getTxnAmt().toString))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange().toString))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("procCode"), Bytes.toBytes(record.getProcCode()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("respCode"), Bytes.toBytes(record.getRespCode()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("tranStat"), Bytes.toBytes(record.getTranStat()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("procCode"), Bytes.toBytes(record.getProcCode()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("serConcode"), Bytes.toBytes(record.getSerConcode()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("msgType"), Bytes.toBytes(record.getMsgType()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("txnAmt"), Bytes.toBytes(record.getTxnAmt()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("RSV4"), Bytes.toBytes(record.getRSV4()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dcFlag"), Bytes.toBytes(record.getDcFlag()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dcFlag"), Bytes.toBytes(record.getDcFlag().toString))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("merNo"), Bytes.toBytes(record.getMerNo()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("groupId"), Bytes.toBytes(record.getGroupId()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("storeNo"), Bytes.toBytes(record.getStoreNo()))
@@ -360,12 +357,12 @@ object ApplyULinkNormalRuleToSparkStream2 extends Logging {
           puts.add(put)
 //          println("add record: mid: " + record.getmId() + "tid: " + record.gettId() + "txnAmt: " + record.getTxnAmt)
         }
-
+        print("当前系统时间：" + new Date())
         val tableInterface = hbaseUtil.getConnection.getTable(TableName.valueOf(HISTORY_RECORD_TABLE))
         tableInterface.put(puts)
         tableInterface.close()
         val end_4 = System.currentTimeMillis()
-        println("数据存储" , end_4 - start,puts.size)
+//        println("数据存储" , end_4 - start,puts.size)
         }
     }
     streamContext.start()

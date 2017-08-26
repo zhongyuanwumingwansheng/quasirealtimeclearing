@@ -66,13 +66,13 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       "auto.offset.reset" -> "smallest" //自动将偏移重置为最早的偏移
     )
     val lines = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](streamContext, kafkaParams, topicsSet).flatMap(line => Some(line._2.toString()))
-
-    IgniteUtil(setting)
-
+    val lines_new = lines.repartition(25)
+    val ignite = IgniteUtil(setting)
     destroyCache$(SUMMARY)
     createCache$(SUMMARY, indexedTypes = Seq(classOf[String], classOf[Double]))
+    ignite.close
 
-    val records = lines.map {
+    val records = lines_new.map {
       line => {
         val ulinkIncre = new UlinkIncre()
         try {
@@ -109,7 +109,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         ulinkIncre
       }
     }
-    //records.print()
+    records.print()
     val filterRecords = records.mapPartitions {
       val filterRecords = new ArrayBuffer[UlinkIncre]
 
@@ -219,7 +219,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
       }
       record
     }
-    mapRecords.print()
+
     val saveRecords = mapRecords.map { record =>
       //手续费计算
       //商户档案信息
@@ -299,7 +299,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
         while (iter.hasNext) {
           val record = iter.next()
           val now = new Date()
-          val rowkey = record.getMchntIdPay() + record.getTermIdPay() + now.getTime.toString
+          val rowkey = record.getPltSsn//getMchntIdPay() + record.getTermIdPay() + now.getTime.toString
           val put = new Put(Bytes.toBytes(rowkey))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mchntIdPay"), Bytes.toBytes(record.getMchntIdPay()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("transCdPay"), Bytes.toBytes(record.getTransCdPay()))
@@ -311,9 +311,9 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("filterFlag"), Bytes.toBytes(record.getFilterFlag()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("prodStyle"), Bytes.toBytes(record.getProdStyle()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dRsvd6"), Bytes.toBytes(record.getdRsvd6()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("transAmt"), Bytes.toBytes(record.getTransAmt()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange()))
-          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dcFlag"), Bytes.toBytes(record.getDcFlag()))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("transAmt"), Bytes.toBytes(record.getTransAmt().toString))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("exchange"), Bytes.toBytes(record.getExchange().toString))
+          put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("dcFlag"), Bytes.toBytes(record.getDcFlag().toString))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("merNo"), Bytes.toBytes(record.getMerNo()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("groupId"), Bytes.toBytes(record.getGroupId()))
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("storeNo"), Bytes.toBytes(record.getStoreNo()))
@@ -321,6 +321,7 @@ object ApplyULinkIncreRuleToSparkStream extends Logging {
           put.addColumn(Bytes.toBytes(cf), Bytes.toBytes("mapResultFromRSV"), Bytes.toBytes(record.getMapResultFromRSV()))
           puts.add(put)
         }
+        println("当前系统时间： " + new Date)
         val tableInterface = hbaseUtil.getConnection.getTable(TableName.valueOf(HISTORY_RECORD_TABLE))
         tableInterface.put(puts)
         tableInterface.close()
